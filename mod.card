@@ -1,0 +1,33 @@
+return {
+  summary = "Play as any Gym Leader, Elite Four, or rival. 14 iconic trainers with full sprite support.",
+  author = "Pokemon Gen 1 Recompilation Project",
+  contact = "https://github.com/bryanthaboi/gen1recomp",
+  tags = { "character-customization", "gameplay", "roleplay" },
+  differences = {
+    changed = {
+      "Player overworld sprite, battle sprites, and trainer portraits reflect selected character",
+      "Rival appearance in both overworld and battles now customizable independently",
+      "Dual selection menus accessible from start menu (CHARACTER and RIVAL)",
+    },
+    added = {
+      "14 playable characters: RED, GIOVANNI, BROCK, MISTY, LT. SURGE, ERIKA, KOGA, SABRINA, BLAINE, LORELEI, BRUNO, AGATHA, LANCE, BLUE",
+      "Independent rival selection — choose who you face as your rival",
+      "Character selection screen (MOD_PSS_SELECT) with real-time switching",
+      "Rival selection screen (MOD_PSS_RIVAL_SELECT) with persistent state",
+      "Back sprites auto-generated from trainer front sprites via transforms.lua",
+      "Palette system integration — characters use their original GB/GBC palettes",
+      "Graceful fallbacks: missing ROM assets automatically use RED without breaking",
+      "State persistence across saves — both character and rival choices remembered",
+    },
+    known = {
+      "Rival battle portraits display in grayscale (requires engine hook 'trainer.pic' — tracked for future)",
+      "NPC duplication not handled (e.g., Giovanni still appears in his gym when selected)",
+      "Some characters may use fallback palettes if ROM cache lacks sprite data",
+    },
+  },
+  credits = {
+    { who = "Character sprites", for_ = "Runtime-generated from player's ROM cache — no copyrighted assets shipped" },
+    { who = "Transform pipeline", for_ = "Automated back sprite derivation and palette mapping" },
+  },
+  compat = { engine = ">=0.0.0-0 <2.0.0", modApi = 2 },
+}
