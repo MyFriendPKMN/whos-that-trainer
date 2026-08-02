@@ -21,26 +21,26 @@ Break the rules of Kanto! Take control of Gym Leaders, Elite 4 members, or even 
 4. play the game xD
 PS:. just tested with pokemon yellow and engine 1.4.4
 
-## 🖌️ How to Add Custom Characters
+  ## 🖌️ How to Add Custom Characters
 
-You can now inject your own characters into the game! 
+  You can now inject your own characters into the game! 
 
-1. Edit zip file and Navigate to `whos-that-trainer/custom_characters/`.
-2. Duplicate the `example_custom` folder and rename it to your character's name (no spaces).
-3. Inside your new folder, replace the existing image files with your own pixel art:
-   * `walk.png`: The overworld walking sprite sheet.
-   * `front.png`: The trainer card / battle intro portrait.
-   * `back.png`: The battle back sprite.
-4. Open the `config.json` inside your folder and update the character's `id` and `label` (the name that will appear in the game's mod menu).
-5. Restart the game, and your custom character will be available in the Mod Manager options!
+  1. Edit zip file and Navigate to `whos-that-trainer/custom_characters/`.
+  2. Duplicate the `example_custom` folder and rename it to your character's name (no spaces).
+  3. Inside your new folder, replace the existing image files with your own pixel art:
+    * `walk.png`: The overworld walking sprite sheet.
+    * `front.png`: The trainer card / battle intro portrait.
+    * `back.png`: The battle back sprite.
+  4. Open the `config.json` inside your folder and update the character's `id` and `label` (the name that will appear in the game's mod menu).
+  5. Restart the game, and your custom character will be available in the Mod Manager options!
 
-## 🗺️ Roadmap
+  ## 🗺️ Roadmap
 
-* [x] Player Sprite Swap (Overworld & Battle).
-* [x] Rival Sprite Swap.
-* [x] Slect follower visuals.
-* [x] **Custom Sprite Injection:** Allow players to load custom PNG files.
+  * [x] Player Sprite Swap (Overworld & Battle).
+  * [x] Rival Sprite Swap.
+  * [x] Slect follower visuals.
+  * [x] **Custom Sprite Injection:** Allow players to load custom PNG files.
 
-## 🤝 Credits
-* Mod developed by **MyFriendDev**.
-* Built for the amazing `gen1recomp` architecture made with love.
+  ## 🤝 Credits
+  * Mod developed by **MyFriendDev**.
+  * Built for the amazing `gen1recomp` architecture made with love.
