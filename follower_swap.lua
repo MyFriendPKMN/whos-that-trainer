@@ -79,7 +79,8 @@ function FollowerSwap.init(mod, characters, availableId)
 
   -- Apply on every map transition; skip when DEFAULT is selected
   mod.events:on("map.entered", function(ev)
-    local ow = ev.overworld
+    local ok, Game = pcall(require, "src.core.Game")
+    local ow = ok and Game and Game.overworld
     if not ow then return end
     local chosen = FollowerSwap._resolveSelected(mod, availableId)
     -- DEFAULT = vanilla Pikachu; nothing to override

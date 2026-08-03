@@ -242,7 +242,8 @@ function CharacterSwap.init(mod, characters)
 
   -- 4. overworld sprite swap on map load
   mod.events:on("map.entered", function(ev)
-    local ow = ev.overworld
+    local ok, Game = pcall(require, "src.core.Game")
+    local ow = ok and Game and Game.overworld
     if not (ow and ow.player) then return end
     CharacterSwap._applyOverworldSprite(mod, ow, mod.path)
   end)

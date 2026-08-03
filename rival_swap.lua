@@ -79,7 +79,8 @@ function RivalSwap.init(mod, characters, availableId)
 
   -- ── overworld: rival NPC sprite substitution ────────────────────────────────
   mod.events:on("map.entered", function(ev)
-    local ow = ev.overworld
+    local ok, Game = pcall(require, "src.core.Game")
+    local ow = ok and Game and Game.overworld
     if not ow then return end
     local rivalId = RivalSwap._resolveSelectedRival(mod, availableId)
     -- When BLUE is selected, no sprite override is needed —
