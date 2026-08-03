@@ -143,6 +143,16 @@ If you're updating from an older version (< 0.0.3), you may need to regenerate b
 2. Restart the game — assets will regenerate automatically
 3. Reimport your ROM.
 
+🗺️ **Roadmap**
+• [x] Player Sprite Swap (Overworld, Bike & Battle).
+• [x] Rival Sprite Swap.
+• [x] Select follower Sprite in overworld.
+• [x] Custom Sprite Injection: Allow players to load custom PNG files to create their own characters.
+• [x] Starter Swap: Syncs the starter with the character.
+• [ ] **Custom Starter follow as the default and dont has humor window** In progress.
+• [ ] **Custom Rival battle pallete:** a BUG that rival pallete on battles are appearing in mono colors.
+• [ ] **follower vanilla and rival:** a BUG that rival and follower back to original sometimes on overworld.
+
 ## 📝 Credits
 
 All built-in character sprites are derived from the original Pokémon Red/Blue/Yellow ROMs via runtime transformation. No copyrighted artwork is distributed with this mod.
