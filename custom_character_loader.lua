@@ -7,6 +7,7 @@
 -- Never calls bare error() or assert() inside event callbacks.
 
 local CustomCharacterLoader = {}
+local Json = require("src.link.Json")
 
 -- Custom characters directory name, relative to the mod folder.
 local CUSTOM_DIR = "custom_characters"
@@ -43,27 +44,10 @@ end
 -- @param src       Raw string contents of config.json
 -- @param subfolder Subfolder name used as label fallback (e.g. "ash")
 local function _parseConfig(src, subfolder)
-  -- Attempt to acquire a JSON decoder from the environment.
-  local json
-  local ok, result = pcall(require, "json")
-  if ok and result then
-    json = result
-  elseif type(_G.json) == "table" then
-    -- Some environments expose json as a global (dkjson, etc.).
-    json = _G.json
-  end
-
-  if not json or not json.decode then
-    -- No parser available; treat as if config.json were absent (use defaults).
-    -- Caller receives nil + error so it can apply the "absent config" path
-    -- (defaults) instead of the "parse error" path (skip subfolder).
-    return nil, "json_unavailable"
-  end
-
-  -- Decode the raw JSON source inside a pcall to catch malformed input.
-  local decodeOk, decoded = pcall(json.decode, src)
-  if not decodeOk or type(decoded) ~= "table" then
-    return nil, "json_parse_error: " .. tostring(decoded)
+  -- Use the project's JSON decoder so parsing works in all runtime targets.
+  local decoded, decodeErr = Json.decode(src)
+  if type(decoded) ~= "table" then
+    return nil, "json_parse_error: " .. tostring(decodeErr or decoded)
   end
 
   local config = {}
