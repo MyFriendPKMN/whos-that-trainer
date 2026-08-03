@@ -13,6 +13,7 @@ return function(mod)
   local CharacterSwap           = loadMod("character_swap.lua")
   local RivalSwap     = loadMod("rival_swap.lua")
   local FollowerSwap  = loadMod("follower_swap.lua")
+  local StarterSwap   = loadMod("starter_swap.lua")
 
   -- Collect option schemas from each module before registering them.
   -- mod.options:define REPLACES the entire schema on each call, so
@@ -20,6 +21,7 @@ return function(mod)
   local charSchema     = CharacterSwap.init(mod, Characters)
   local rivalSchema    = RivalSwap.init(mod, Characters, CharacterSwap.AVAILABLE_ID)
   local followerSchema = FollowerSwap.init(mod, Characters, CharacterSwap.AVAILABLE_ID)
+  StarterSwap.init(mod, Characters, CharacterSwap)
 
   -- Single define call: combines rows from both modules.
   local combined = {}

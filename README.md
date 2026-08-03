@@ -1,46 +1,150 @@
-# 👤 Who's That Trainer?
+# Who's That Trainer?
 
-**Who's That Trainer?** is a dynamic character customization mod for the *Pokémon Gen 1 Recompilation Project*. 
+Ever wanted to play Pokémon as Giovanni, Pikachu, or face yourself as the rival? Now you can!
 
-Break the rules of Kanto! Take control of Gym Leaders, Elite 4 members, or even Team Rocket. Or better yet: inject your very own custom pixel art to create a truly unique journey!
+**Who's That Trainer?** lets you swap between 17 iconic Gen 1 characters — complete with overworld sprites, battle sprites, and trainer portraits. Choose your character, rival, and follower independently from the start menu. You can also add unlimited custom characters by dropping your own sprites into a folder.
 
 ## ✨ Features
 
-* 🧢 **Dynamic Player Swap:** Play as Giovanni, Brock, Misty, Lance, and more. Changes apply to the overworld walking sprites, battle intro cards, and battle back sprites.
-* 😠 **Rival Swap:** Choose your nemesis! Replace Blue with any available character in the mod.
-* 💛 **Follower Swap:** The overworld follower system has been updated to reflect your custom choices seamlessly.
-* 🎨 **Flawless Pixel Art (Integer Scaling):** The mod dynamically crops and scales native ROM assets using perfect Integer Scaling, ensuring back sprites look sharp, authentic, and perfectly aligned with the battle UI.
-* ✏️ **Custom Sprite Injection:** Easily load your own `.png` files to play as your original character, using a simple folder structure!
-* 💾 **Zero-Asset Distribution:** The core mod distributes zero copyrighted images, generating everything at runtime via the `transforms.lua` pipeline using the player's own ROM cache.
+- **17 Built-in Characters:** RED, GIOVANNI, PIKACHU, BROCK, MISTY, LT. SURGE, ERIKA, KOGA, SABRINA, BLAINE, LORELEI, BRUNO, AGATHA, LANCE, BLUE, JESSIE, and JAMES
+- **Unlimited Custom Characters:** Drop your own sprites into `custom_characters/` — no Lua editing required
+- **Independent Selection:** Pick your player character, follower, and rival separately
+- **Full Sprite Support:** Overworld walking sprites, bike sprites, battle back sprites, and trainer card portraits
+- **Runtime Transforms:** All built-in sprites generated from your ROM cache — no copyrighted artwork shipped
+- **Seamless Integration:** Access all three menus from the start menu (CHARACTER, RIVAL, FOLLOWER)
 
 ## 🎮 How to Use
 
-1. Ensure you have the `gen1recomp` engine.
-2. Load the `whos-that-trainer.zip` from recomp launcher.
-3. Press **F10** to open the Mod Manager, enable **Who's That Trainer?**, and configure your characters in the mod options menu.
-4. play the game xD
-PS:. just tested with pokemon yellow and engine 1.4.4
+1. **Enable the mod** via the in-game mod manager (F10) or edit `options.lua`
+2. **Open the start menu** during gameplay
+3. Select **CHARACTER** to change your player sprite
+4. Select **RIVAL** to change your rival's appearance
+5. Select **FOLLOWER** to change your follower appearance
+6. Changes apply immediately — no restart needed!
 
-  ## 🖌️ How to Add Custom Characters
+## 🎨 Custom Characters
 
-  You can now inject your own characters into the game! 
+You can add your own characters to the mod without editing any Lua files. Just create a subfolder with your sprites and an optional config file.
 
-  1. Edit zip file and Navigate to `whos-that-trainer/custom_characters/`.
-  2. Duplicate the `example_custom` folder and rename it to your character's name (no spaces).
-  3. Inside your new folder, replace the existing image files with your own pixel art:
-    * `walk.png`: The overworld walking sprite sheet.
-    * `front.png`: The trainer card / battle intro portrait.
-    * `back.png`: The battle back sprite.
-  4. Open the `config.json` inside your folder and update the character's `id` and `label` (the name that will appear in the game's mod menu).
-  5. Restart the game, and your custom character will be available in the Mod Manager options!
+### Step by step
 
-  ## 🗺️ Roadmap
+**1. Create the character subfolder**
 
-  * [x] Player Sprite Swap (Overworld & Battle).
-  * [x] Rival Sprite Swap.
-  * [x] Slect follower visuals.
-  * [x] **Custom Sprite Injection:** Allow players to load custom PNG files.
+Inside the game's data directory (see table below), create:
 
-  ## 🤝 Credits
-  * Mod developed by **MyFriendDev**.
-  * Built for the amazing `gen1recomp` architecture made with love.
+```
+custom_characters/<name>/
+```
+
+| Platform | Location of `custom_characters/` |
+|---|---|
+| Windows | `%APPDATA%\LOVE\pokemon-love2d\mods\whos_that_trainer\custom_characters\` |
+| macOS | `~/Library/Application Support/LOVE/pokemon-love2d/mods/whos_that_trainer/custom_characters/` |
+| Linux | `~/.local/share/love/pokemon-love2d/mods/whos_that_trainer/custom_characters/` |
+| Android | External storage: `Android/data/org.love2d.android/files/mods/whos_that_trainer/custom_characters/` |
+
+The subfolder name (lowercase) becomes the character's internal ID. For example, the folder `ash` produces the ID `CUSTOM_ASH`.
+
+**2. Add your sprites**
+
+| File | Description |
+|---|---|
+| `walk.png` | Walking sprite sheet with **exactly 6 frames** laid out horizontally, same format as native sprites. Use `assets/generated/sprites/brock.png` as a size and layout reference. |
+| `front.png` | Front-facing sprite — used on the trainer card, intro, and Hall of Fame. |
+| `back.png` | Back-facing sprite — used in battles. |
+| `bike.png` | Bike sprite sheet with **exactly 6 frames** laid out horizontally. If absent, the game uses the default RED bike sprite. Use `assets/generated/sprites/red_bike.png` as a reference. |
+
+> ⚠️ Both `walk.png` and `bike.png` (when provided) must contain exactly 6 animation frames arranged horizontally in a single sprite sheet.
+
+**3. Create a `config.json`** *(optional)*
+(an example is on mod folder at `custom_characters` folder)
+```json
+{
+  "label": "Ash",
+  "starterSpecies": "PIKACHU",
+  "mirrorBack": false
+}
+```
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `label` | string | **Yes** | Folder name in uppercase | Name shown in the selection menus |
+| `starterSpecies` | string | No | `nil` | Species name of the starter Pokémon Oak gives on **Pokémon Yellow** (e.g. `"GEODUDE"`, `"PIKACHU"`). No effect on Red/Blue. |
+| `palette` | string | No | `nil` | Borrow the GBC/SGB palette from a built-in character (e.g. `"BROCK"`, `"MISTY"`, `"SPRITE_GIOVANNI"`). Only takes effect in **COLORS = RED++** mode. See palette notes below. |
+| `mirrorBack` | boolean | No | `false` | Horizontally flips `back.png` when displayed in battle |
+| `trueColor` | boolean | No | `true` | When `true` (the default), your PNG colors are displayed exactly as painted — no recolorization is applied regardless of the COLORS setting. Set to `false` only when you also set `palette`. |
+
+#### 🎨 Palette options explained
+
+There are two ways to handle color for a custom character:
+
+**True color (default — recommended for most custom characters)**
+
+Leave `palette` unset (or `null`). The game renders your PNG with its original colors in every COLORS mode. This is the simplest option and gives you full control over how your character looks.
+
+```json
+{ "label": "Ash" }
+```
+
+**Borrow a built-in palette**
+
+Set `palette` to the id of any built-in character (e.g. `"BROCK"`) or its sprite id (e.g. `"SPRITE_BROCK"`). The game will then recolorize your sprites using that character's palette ramp.
+
+- Only takes effect in **COLORS = RED++** mode. In all other modes (SGB, OG RED, OG BLUE, etc.) the sprite is still rendered through the standard DMG shade pipeline, the same as any other overworld character.
+- Your PNG must use the standard 4-shade DMG grayscale ramp (white / light gray / dark gray / black) for the recolorization to look correct.
+- There is no way to define a fully custom palette that has never appeared in the game — the palette system only has slots for palettes already present in the ROM data.
+
+```json
+{ "label": "Ash", "palette": "MISTY", "trueColor": false }
+```
+
+If `config.json` is absent, the mod uses the folder name in uppercase as the `label` and all other fields at their defaults.
+
+**4. Restart the game**
+
+The character appears automatically in the CHARACTER, RIVAL, and FOLLOWER lists — sorted alphabetically alongside the built-in characters. No additional file editing required.
+
+---
+
+### Example folder structure
+
+```
+custom_characters/         ← folder inside the game's data directory
+└── ash/
+    ├── walk.png           ← required: 6 frames, same layout as brock.png
+    ├── front.png          ← required
+    ├── back.png           ← required
+    ├── bike.png           ← optional: 6 frames, same layout as red_bike.png
+    └── config.json        ← optional; label, starterSpecies (Yellow only), mirrorBack, trueColor
+```
+
+> 💡 The `custom_characters/example_custom/` folder included in the mod already contains placeholder sprites and a filled-in `config.json` to use as a starting point.
+
+## 🧪 Testing
+
+```sh
+# Validate the mod loads cleanly
+python tools/modkit.py validate mods/whos-that-trainer
+
+# Run in developer mode
+love . --developer
+```
+
+## ⚠️ Known Limitations
+
+- **Rival battle portraits:** Currently display in grayscale due to engine palette pipeline limitations. This requires adding a `trainer.pic` hook to the engine core (tracked as future enhancement).
+- **Palette accuracy:** Some built-in characters may use fallback palettes if their original sprite data is unavailable in your ROM cache.
+
+## 🔄 Updating from Previous Versions
+
+If you're updating from an older version (< 0.0.3), you may need to regenerate back sprites to get the corrected orientation:
+
+1. Delete the `assets/generated/battle/player_back/` folder
+2. Restart the game — assets will regenerate automatically
+3. Reimport your ROM.
+
+## 📝 Credits
+
+All built-in character sprites are derived from the original Pokémon Red/Blue/Yellow ROMs via runtime transformation. No copyrighted artwork is distributed with this mod.
+
+PS: tested on Pokémon Yellow and recomp version 0.1.6 — custom character support added in v1.1.0

@@ -85,13 +85,13 @@ local function _parseConfig(src, subfolder)
   config._labelWasDefaulted = (decoded.label == nil) or labelWarn
   config._labelWasInvalid   = labelWarn
 
-  -- starterSpecies: integer >= 1, optional; nil if absent or invalid.
+  -- starterSpecies: non-empty string (Pokémon species name), optional.
+  -- Normalized to uppercase to match the engine's species key convention.
+  -- Examples: "GEODUDE", "STARYU", "ARBOK". Numbers are rejected.
   if decoded.starterSpecies ~= nil then
     local ss = decoded.starterSpecies
-    -- math.type is LuaJIT/5.3+; guard with a floor comparison for 5.1.
-    local isInt = (type(ss) == "number") and (math.floor(ss) == ss)
-    if isInt and ss >= 1 then
-      config.starterSpecies = ss
+    if type(ss) == "string" and ss ~= "" then
+      config.starterSpecies = string.upper(ss)
     else
       config.starterSpecies = nil
       config._starterSpeciesInvalid = true
@@ -112,6 +112,22 @@ local function _parseConfig(src, subfolder)
     config.trueColor = decoded.trueColor
   else
     config.trueColor = false
+  end
+
+  -- palette: optional string referencing a character id (e.g. "BROCK") or
+  -- a sprite id (e.g. "SPRITE_BROCK"). When present, the character participates
+  -- in the SGB/GBC palette pipeline (trueColor is overridden to false).
+  -- The loader resolves this to paletteSource at record-build time.
+  if decoded.palette ~= nil then
+    local p = decoded.palette
+    if type(p) == "string" and p ~= "" then
+      config.palette = string.upper(p)
+    else
+      config.palette = nil
+      config._paletteInvalid = true
+    end
+  else
+    config.palette = nil
   end
 
   return config, nil
@@ -308,7 +324,13 @@ local function _scanAndInject(mod, Characters)
         end
         if config._starterSpeciesInvalid then
           mod.log:warn(
-            "custom_characters/%s: config.json 'starterSpecies' is not a valid integer >= 1 — set to nil",
+            "custom_characters/%s: config.json 'starterSpecies' must be a non-empty string (e.g. \"GEODUDE\") — set to nil",
+            item
+          )
+        end
+        if config._paletteInvalid then
+          mod.log:warn(
+            "custom_characters/%s: config.json 'palette' must be a non-empty string (e.g. \"BROCK\") — set to nil",
             item
           )
         end
@@ -332,10 +354,38 @@ local function _scanAndInject(mod, Characters)
     -- The design document data model example uses this shorter form (Req 3.2).
     local walkId = "MOD_PSS_SPRITE_CUSTOM_" .. string.upper(item)
 
-    -- Custom characters always use their PNG directly (no GBC palette pipeline).
-    -- paletteSource is always nil for custom chars, so trueColor is forced true
-    -- regardless of the config.json value — the user's PNG colors are used as-is.
+    -- Resolve the palette reference to a paletteSource string.
+    -- Accepts a character id ("BROCK") or a sprite id ("SPRITE_BROCK").
+    -- When absent, trueColor stays true (raw PNG colors, no palette pipeline).
+    local paletteSource = nil
     local trueColor = true
+    if config.palette then
+      -- Normalize: if the value doesn't already start with "SPRITE_", prepend it.
+      -- "BROCK" -> "SPRITE_BROCK"; "SPRITE_BROCK" -> "SPRITE_BROCK" (unchanged).
+      if config.palette:sub(1, 7) == "SPRITE_" then
+        paletteSource = config.palette
+      else
+        paletteSource = "SPRITE_" .. config.palette
+      end
+      trueColor = false
+      mod.log:info(
+        "custom_characters/%s: using palette source %q (trueColor = false)",
+        item, paletteSource
+      )
+    end
+
+    -- Check for optional bike.png; nil means fall back to vanilla RED bike sprite.
+    local bikePngPath = customDir .. "/" .. item .. "/bike.png"
+    local bikePathValue = nil
+    do
+      local fs = love and love.filesystem
+      if fs and fs.getInfo then
+        local bikeOk, bikeInfo = pcall(fs.getInfo, bikePngPath)
+        if bikeOk and bikeInfo then
+          bikePathValue = bikePngPath
+        end
+      end
+    end
 
     -- Build the character record (mirrors the structure used in characters.lua).
     local record = {
@@ -345,10 +395,11 @@ local function _scanAndInject(mod, Characters)
       walkImage      = customDir .. "/" .. item .. "/walk.png",
       backPath       = customDir .. "/" .. item .. "/back.png",
       frontPath      = customDir .. "/" .. item .. "/front.png",
+      bikePath       = bikePathValue,
       mirrorBack     = config.mirrorBack,
       trueColor      = trueColor,
       starterSpecies = config.starterSpecies,
-      paletteSource  = nil,
+      paletteSource  = paletteSource,
     }
 
     -- Inject into the Characters table.

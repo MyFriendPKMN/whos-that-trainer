@@ -15,6 +15,7 @@ local WALK_ID_BY_ID     = {}
 local ID_BY_WALK_ID     = {}
 -- char.paletteSource indexed by char.id; used by _applyOverworldSprite fallback
 local PALETTE_SOURCE_BY_ID = {}
+local BIKE_PATH_BY_ID   = {}   -- optional bike.png path; nil means use engine default
 local KNOWN_ID          = {}
 local AVAILABLE_ID      = {}
 local PALETTE_FALLBACK_BY_ID = {
@@ -103,6 +104,7 @@ function CharacterSwap.init(mod, characters)
     WALK_ID_BY_ID[char.id]         = char.walkId
     ID_BY_WALK_ID[char.walkId]     = char.id
     PALETTE_SOURCE_BY_ID[char.id]  = char.paletteSource
+    BIKE_PATH_BY_ID[char.id]       = char.bikePath
 
     -- validate required fields
     local walkOk = char.walkImage == nil or
@@ -377,13 +379,40 @@ function CharacterSwap._applyOverworldSprite(mod, ow, modPath)
     local SpriteRenderer = require("src.render.SpriteRenderer")
     return SpriteRenderer.new(def, "player")
   end)
-  if ok then
-    ow.player.sprite = result
-  else
+  if not ok then
     mod.log:error("_applyOverworldSprite: failed to create sprite: %s",
                   tostring(result))
     mod.save:set("selected_character", "RED")
     mod.options:set("character", "RED")
+    return
+  end
+  ow.player.sprite = result
+
+  -- Replace the bike sprite if this character has a custom bike.png.
+  -- If bikePath is nil, leave ow.player.bikeSprite untouched so the engine
+  -- falls back to its default SPRITE_RED_BIKE sheet.
+  local bikePath = BIKE_PATH_BY_ID[id]
+  if bikePath and assetExists(bikePath) then
+    local bikeOk, bikeResult = pcall(function()
+      local SpriteRenderer = require("src.render.SpriteRenderer")
+      return SpriteRenderer.new({
+        image     = bikePath,
+        frames    = 6,
+        walker    = true,
+        trueColor = true,
+        source    = nil,
+      }, "player")
+    end)
+    if bikeOk then
+      ow.player.bikeSprite = bikeResult
+    else
+      mod.log:warn("_applyOverworldSprite: failed to create bikeSprite for %q: %s",
+                   id, tostring(bikeResult))
+    end
+  elseif bikePath then
+    -- Path was registered but file no longer exists (e.g. user deleted it).
+    mod.log:warn("_applyOverworldSprite: bikePath %q not found for %q — using default bike sprite",
+                 bikePath, id)
   end
 end
 

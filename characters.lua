@@ -18,6 +18,10 @@
 -- Trainer opponent sprites face left (toward the player), but when used as the
 -- player's back sprite they need to face right (toward the opponent).
 --
+-- starterSpecies: when set (non-nil), overrides the Pokémon Oak gives the player
+-- on Pokémon Yellow. Has no effect on Red/Blue (player still picks from 3 balls).
+-- Use the engine's species key string: "GEODUDE", "STARYU", etc.
+--
 -- Note: Paths are relative to the asset cache created by RomExtractor
 -- during the player's ROM import. The mod does not distribute assets.
 return {
@@ -30,6 +34,7 @@ return {
     frontPath     = "assets/generated/trainer_card/red.png", -- front sprite used in intro/card/HoF (side=front)
     trueColor     = false, -- false = participates in the game's GB/GBC palette pipeline
     paletteSource = "SPRITE_RED", -- palette reference for overworld sprite registration
+    starterSpecies = nil,
   },
   {
     id            = "GIOVANNI",
@@ -42,6 +47,7 @@ return {
     trueColor     = false,
     paletteSource = "SPRITE_GIOVANNI",
     mirrorBack    = true, -- Trainer sprites face left; flip to face right as player back
+    starterSpecies = "RHYHORN",
   },
   {
     id            = "BROCK",
@@ -54,6 +60,7 @@ return {
     trueColor     = false,
     paletteSource = "SPRITE_BROCK",
     mirrorBack    = true,
+    starterSpecies = "GEODUDE",
   },
   {
     id            = "MISTY",
@@ -66,6 +73,7 @@ return {
     trueColor     = false,
     paletteSource = "SPRITE_MISTY",
     mirrorBack    = true,
+    starterSpecies = "STARYU",
   },
   {
     id            = "LT_SURGE",
@@ -78,6 +86,7 @@ return {
     trueColor     = false,
     paletteSource = "SPRITE_LT_SURGE",
     mirrorBack    = true,
+    starterSpecies = "VOLTORB",
   },
   {
     id            = "ERIKA",
@@ -90,6 +99,7 @@ return {
     trueColor     = false,
     paletteSource = "SPRITE_ERIKA",
     mirrorBack    = true,
+    starterSpecies = "ODDISH",
   },
   {
     id            = "KOGA",
@@ -102,6 +112,7 @@ return {
     trueColor     = false,
     paletteSource = "SPRITE_KOGA",
     mirrorBack    = true,
+    starterSpecies = "KOFFING",
   },
   {
     id            = "SABRINA",
@@ -114,6 +125,7 @@ return {
     trueColor     = false,
     paletteSource = "SPRITE_SABRINA",
     mirrorBack    = true,
+    starterSpecies = "ABRA",
   },
   {
     id            = "BLAINE",
@@ -126,6 +138,7 @@ return {
     trueColor     = false,
     paletteSource = "SPRITE_BLAINE",
     mirrorBack    = true,
+    starterSpecies = "GROWLITHE",
   },
   {
     id            = "LORELEI",
@@ -138,6 +151,7 @@ return {
     trueColor     = false,
     paletteSource = "SPRITE_LORELEI",
     mirrorBack    = true,
+    starterSpecies = "SEEL",
   },
   {
     id            = "BRUNO",
@@ -150,6 +164,7 @@ return {
     trueColor     = false,
     paletteSource = "SPRITE_BRUNO",
     mirrorBack    = true,
+    starterSpecies = "MACHOP",
   },
   {
     id            = "AGATHA",
@@ -162,6 +177,7 @@ return {
     trueColor     = false,
     paletteSource = "SPRITE_AGATHA",
     mirrorBack    = true,
+    starterSpecies = "GASTLY",
   },
   {
     id            = "LANCE",
@@ -174,6 +190,7 @@ return {
     trueColor     = false,
     paletteSource = "SPRITE_LANCE",
     mirrorBack    = true,
+    starterSpecies = "DRATINI",
   },
   {
     id            = "BLUE",
@@ -186,6 +203,7 @@ return {
     trueColor     = false,
     paletteSource = "SPRITE_BLUE",
     mirrorBack    = true,
+    starterSpecies = "EEVEE",
   },
   {
     id            = "JESSIE",
@@ -198,6 +216,7 @@ return {
     trueColor     = false,
     paletteSource = "SPRITE_JESSIE",
     mirrorBack    = true,
+    starterSpecies = "EKANS",
   },
   {
     id            = "JAMES",
@@ -210,6 +229,7 @@ return {
     trueColor     = false,
     paletteSource = "SPRITE_JAMES",
     mirrorBack    = true,
+    starterSpecies = "KOFFING",
   },
   {
     -- Pikachu: Yellow-only follower character. SPRITE_PIKACHU lives in the Yellow ROM
@@ -230,5 +250,6 @@ return {
     trueColor     = false,
     paletteSource = "SPRITE_PIKACHU",
     mirrorBack    = false,
+    starterSpecies = nil,
   },
 }
