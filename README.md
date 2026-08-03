@@ -69,7 +69,7 @@ The subfolder name (lowercase) becomes the character's internal ID. For example,
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `label` | string | **Yes** | Folder name in uppercase | Name shown in the selection menus |
-| `starterSpecies` | string | No | `nil` | Species name of the starter Pokémon Oak gives on **Pokémon Yellow** (e.g. `"GEODUDE"`, `"PIKACHU"`). No effect on Red/Blue. |
+| `starterSpecies` | string | No | `nil` | Species name of the starter Monster, professor gives on **Yellow** (e.g. `"GEODUDE"`, `"PIKACHU"`). No effect on Red/Blue. |
 | `palette` | string | No | `nil` | Borrow the GBC/SGB palette from a built-in character (e.g. `"BROCK"`, `"MISTY"`, `"SPRITE_GIOVANNI"`). Only takes effect in **COLORS = RED++** mode. See palette notes below. |
 | `mirrorBack` | boolean | No | `false` | Horizontally flips `back.png` when displayed in battle |
 | `trueColor` | boolean | No | `true` | When `true` (the default), your PNG colors are displayed exactly as painted — no recolorization is applied regardless of the COLORS setting. Set to `false` only when you also set `palette`. |
@@ -143,8 +143,19 @@ If you're updating from an older version (< 0.0.3), you may need to regenerate b
 2. Restart the game — assets will regenerate automatically
 3. Reimport your ROM.
 
+🗺️ **Roadmap**
+- [x] Player Sprite Swap (Overworld, Bike & Battle).
+- [x] Rival Sprite Swap.
+- [x] Select follower Sprite in overworld.
+- [x] Custom Sprite Injection: Allow players to load custom PNG files to create their own characters.
+- [x] Starter Swap: Syncs the starter with the character(at now just yellow and it add as a 2nd starter).
+- [ ] **Custom Starter follow as the default and dont has humor window** In progress.
+- [ ] **Custom Rival battle pallete:** a BUG that rival pallete on battles are appearing in mono colors.
+- [ ] **follower vanilla and rival:** a BUG that rival and follower back to original sometimes on overworld.
+
+
 ## 📝 Credits
 
-All built-in character sprites are derived from the original Pokémon Red/Blue/Yellow ROMs via runtime transformation. No copyrighted artwork is distributed with this mod.
+All built-in character sprites are derived from the original Red/Blue/Yellow ROMs via runtime transformation. No copyrighted artwork is distributed with this mod.
 
-PS: tested on Pokémon Yellow and recomp version 0.1.6 — custom character support added in v1.1.0
+PS: tested on Yellow and recomp version 0.1.6 — custom character support added in v1.1.0
