@@ -17,6 +17,7 @@ local ID_BY_WALK_ID     = {}
 local PALETTE_SOURCE_BY_ID = {}
 local BIKE_PATH_BY_ID   = {}   -- optional bike.png path; nil means use engine default
 local TRUECOLOR_BY_ID   = {}   -- true only for characters whose sprites bypass the palette pipeline
+local FISH_PATHS_BY_ID  = {}   -- optional { down, up, left } fishing pose tile paths per character
 local KNOWN_ID          = {}
 local AVAILABLE_ID      = {}
 local PALETTE_FALLBACK_BY_ID = {
@@ -107,7 +108,7 @@ function CharacterSwap.init(mod, characters)
     PALETTE_SOURCE_BY_ID[char.id]  = char.paletteSource
     BIKE_PATH_BY_ID[char.id]       = char.bikePath
     TRUECOLOR_BY_ID[char.id]       = char.trueColor and true or false
-    TRUECOLOR_BY_ID[char.id]       = char.trueColor and true or false
+    FISH_PATHS_BY_ID[char.id]      = char.fishPaths or nil
 
     -- validate required fields
     local walkOk = char.walkImage == nil or
@@ -395,6 +396,28 @@ function CharacterSwap._applyOverworldSprite(mod, ow, modPath)
     return
   end
   ow.player.sprite = result
+
+  -- Update fishing pose tiles; restore engine default when the character has none.
+  local fishPaths = FISH_PATHS_BY_ID[id]
+  local defaultFishTiles = (function()
+    local ok, Data = pcall(require, "src.core.Data")
+    local fx = ok and Data and Data.field and Data.field.overworldFx
+    if not fx then return nil end
+    local function p(name) local d = fx[name]; return d and d.path or nil end
+    local t = { down = p("redFishFront"), up = p("redFishBack") }
+    t.left = p("redFishSide"); t.right = t.left
+    return (t.down or t.up or t.left) and t or nil
+  end)()
+  if fishPaths then
+    ow.player.fishTiles = {
+      down  = fishPaths.down  or (defaultFishTiles and defaultFishTiles.down),
+      up    = fishPaths.up    or (defaultFishTiles and defaultFishTiles.up),
+      left  = fishPaths.left  or (defaultFishTiles and defaultFishTiles.left),
+      right = fishPaths.right or fishPaths.left or (defaultFishTiles and defaultFishTiles.right),
+    }
+  else
+    ow.player.fishTiles = defaultFishTiles
+  end
 
   -- Replace the bike sprite if this character has a custom bike.png.
   -- If bikePath is nil, leave ow.player.bikeSprite untouched so the engine

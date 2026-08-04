@@ -371,6 +371,25 @@ local function _scanAndInject(mod, Characters)
       end
     end
 
+    -- Check for optional fishing pose tiles; nil means fall back to RED's tiles.
+    local fishPathsValue = nil
+    do
+      local fs = love and love.filesystem
+      if fs and fs.getInfo then
+        local function optPath(filename)
+          local p = customDir .. "/" .. item .. "/" .. filename
+          local ok, info = pcall(fs.getInfo, p)
+          return (ok and info) and p or nil
+        end
+        local fd = optPath("fish_front.png")
+        local fb = optPath("fish_back.png")
+        local fs2 = optPath("fish_side.png")
+        if fd or fb or fs2 then
+          fishPathsValue = { down = fd, up = fb, left = fs2, right = fs2 }
+        end
+      end
+    end
+
     -- Build the character record (mirrors the structure used in characters.lua).
     local record = {
       id             = characterId,
@@ -380,6 +399,7 @@ local function _scanAndInject(mod, Characters)
       backPath       = customDir .. "/" .. item .. "/back.png",
       frontPath      = customDir .. "/" .. item .. "/front.png",
       bikePath       = bikePathValue,
+      fishPaths      = fishPathsValue,
       mirrorBack     = config.mirrorBack,
       trueColor      = trueColor,
       starterSpecies = config.starterSpecies,
