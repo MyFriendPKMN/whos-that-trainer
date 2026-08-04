@@ -16,6 +16,7 @@ local ID_BY_WALK_ID     = {}
 -- char.paletteSource indexed by char.id; used by _applyOverworldSprite fallback
 local PALETTE_SOURCE_BY_ID = {}
 local BIKE_PATH_BY_ID   = {}   -- optional bike.png path; nil means use engine default
+local TRUECOLOR_BY_ID   = {}   -- true only for characters whose sprites bypass the palette pipeline
 local KNOWN_ID          = {}
 local AVAILABLE_ID      = {}
 local PALETTE_FALLBACK_BY_ID = {
@@ -105,6 +106,8 @@ function CharacterSwap.init(mod, characters)
     ID_BY_WALK_ID[char.walkId]     = char.id
     PALETTE_SOURCE_BY_ID[char.id]  = char.paletteSource
     BIKE_PATH_BY_ID[char.id]       = char.bikePath
+    TRUECOLOR_BY_ID[char.id]       = char.trueColor and true or false
+    TRUECOLOR_BY_ID[char.id]       = char.trueColor and true or false
 
     -- validate required fields
     local walkOk = char.walkImage == nil or
@@ -219,6 +222,7 @@ function CharacterSwap.init(mod, characters)
       -- 1st: dedicated back sprite (derived by transforms.lua for all non-RED characters)
       local bp = BACK_PATH_BY_ID[id]
       if bp and assetExists(bp) then
+        if TRUECOLOR_BY_ID[id] then ctx.trueColor = true end
         return bp
       elseif bp then
         mod.log:warn("player.sprite: backPath %q not found for %q — falling back to vanilla RED",
@@ -230,7 +234,10 @@ function CharacterSwap.init(mod, characters)
     elseif ctx.side == "front" then
       -- 1st: dedicated front pic (e.g. GIOVANNI, BROCK, BLUE)
       local fp = FRONT_PATH_BY_ID[id]
-      if fp then return fp end
+      if fp then
+        if TRUECOLOR_BY_ID[id] then ctx.trueColor = true end
+        return fp
+      end
       -- 2nd: walk sprite as front fallback (e.g. MISTY, LT_SURGE, ...)
       local wp = WALK_IMAGE_BY_ID[id]
       if wp then return wp end
