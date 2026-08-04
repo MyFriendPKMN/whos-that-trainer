@@ -79,7 +79,7 @@ return {
     id            = "LT_SURGE",
     label         = "LT. SURGE",
     walkId        = "MOD_PSS_SPRITE_LT_SURGE",
-    walkImage     = "assets/generated/sprites/lt_surge.png",
+    walkImage     = "assets/generated/sprites/rocker.png",
     walkFallback  = "assets/generated/sprites/red.png",
     backPath      = "assets/generated/battle/player_back/lt_surge_back.png", -- Derived in transforms.lua
     frontPath     = "assets/generated/battle/trainers/lt.surge.png",
@@ -230,6 +230,19 @@ return {
     paletteSource = "SPRITE_JAMES",
     mirrorBack    = true,
     starterSpecies = "KOFFING",
+  },
+  {
+    id            = "OAK",
+    label         = "OAK",
+    walkId        = "MOD_PSS_SPRITE_OAK",
+    walkImage     = "assets/generated/sprites/oak.png",
+    walkFallback  = "assets/generated/sprites/red.png",
+    backPath      = "assets/generated/battle/profoakb.png",
+    frontPath     = "assets/generated/battle/trainers/prof.oak.png",  -- Duo pic for battle intro
+    trueColor     = false,
+    paletteSource = "SPRITE_OAK",
+    mirrorBack    = true,
+    starterSpecies = "MEW",
   },
   {
     -- Pikachu: Yellow-only follower character. SPRITE_PIKACHU lives in the Yellow ROM
