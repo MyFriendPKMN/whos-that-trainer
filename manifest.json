@@ -1,7 +1,7 @@
 {
   "id": "whos_that_trainer",
   "name": "Who's That Trainer?",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "entry": "main.lua",
   "api": 2,
   "category": "CONTENT",
@@ -10,7 +10,7 @@
   "github": "MyFriendPKMN/whos-that-trainer",
   "game_version": ">=0.0.0-0 <2.0.0",
   "permissions": [
-    "engine_internals"
+    "engine_internals", "network"
   ],
-  "description": "Play as any Gym Leader, Elite Four member, or even your Rival. Switch between 14 iconic Gen 1 characters — with full sprite support in overworld, battles, and trainer card."
+  "description": "Play as your own character whith custom starter or any pre configured character(Gym Leader, Elite Four member, or even your Rival). Bring your own digital art to life! Inject custom .png sprite sheets or play as Gym Leaders, Elite 4, and Team Rocket. Includes Player, Rival, Follower, and Starter customization with perfect Integer Scaling."
 }
