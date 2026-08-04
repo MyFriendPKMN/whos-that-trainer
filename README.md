@@ -1,6 +1,5 @@
 # Who's That Trainer?
-
-Ever wanted to play Pokémon as Giovanni, Pikachu, or face yourself as the rival? Now you can!
+Ever wanted to play Pokémon as yourself or Giovanni, Pikachu, or face Red as the rival? Now you can!
 
 **Who's That Trainer?** lets you swap between 17 iconic Gen 1 characters — complete with overworld sprites, battle sprites, and trainer portraits. Choose your character, rival, and follower independently from the start menu. You can also add unlimited custom characters by dropping your own sprites into a folder.
 
