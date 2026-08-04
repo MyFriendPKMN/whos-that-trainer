@@ -160,4 +160,6 @@ If you're updating from an older version (< 0.0.3), you may need to regenerate b
 
 All built-in character sprites are derived from the original Red/Blue/Yellow ROMs via runtime transformation. No copyrighted artwork is distributed with this mod.
 
-PS: tested on Yellow and recomp version 0.1.6 — custom character support added in v1.1.0
+The custom character Kawfy was made by the excelent artist that drew it with love. Follow at [bluesky](https://bsky.app/profile/kawfy.bsky.social) and [instagram](https://www.instagram.com/a.kawfy).
+
+PS: tested on Yellow and recomp version 0.1.6
