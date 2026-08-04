@@ -46,14 +46,17 @@ The subfolder name (lowercase) becomes the character's internal ID. For example,
 
 **2. Add your sprites**
 
-| File | Description |
-|---|---|
-| `walk.png` | Walking sprite sheet with **exactly 6 frames** laid out horizontally, same format as native sprites. Use `assets/generated/sprites/brock.png` as a size and layout reference. |
-| `front.png` | Front-facing sprite — used on the trainer card, intro, and Hall of Fame. |
-| `back.png` | Back-facing sprite — used in battles. |
-| `bike.png` | Bike sprite sheet with **exactly 6 frames** laid out horizontally. If absent, the game uses the default RED bike sprite. Use `assets/generated/sprites/red_bike.png` as a reference. |
+| File | Size | Description |
+|---|---|---|
+| `walk.png` | **16 × 96 px** | Walking sprite sheet — 6 frames of 16 × 16 stacked vertically (stand down/up/left, walk down/up/left). Right-facing frames are mirrored automatically. Gen 2 overworld sprites must be scaled down manually to fit. |
+| `front.png` | **56 × 56 px** | Front-facing sprite — used on the trainer card, intro, and Hall of Fame. Drawn at 1×. Gen 2 trainer fronts fit at native size. |
+| `back.png` | **56 × 56 px** | Back-facing sprite — used in battles. Drawn at 2×. Gen 2 back sprites fit at native size. |
+| `bike.png` | **16 × 96 px** | Bike sprite sheet — same 6-frame layout as `walk.png`. If absent, the game uses the default RED bike sprite. |
+| `fish_front.png` | **16 × 8 px** | Fishing pose tile for facing **down**. If absent, RED's fishing tile is used. |
+| `fish_back.png` | **16 × 8 px** | Fishing pose tile for facing **up**. If absent, RED's fishing tile is used. |
+| `fish_side.png` | **16 × 8 px** | Fishing pose tile for facing **left/right**. If absent, RED's fishing tile is used. |
 
-> ⚠️ Both `walk.png` and `bike.png` (when provided) must contain exactly 6 animation frames arranged horizontally in a single sprite sheet.
+> ⚠️ `walk.png` and `bike.png` must be exactly **16 × 96 px**. All other sprites drop in at their listed native size with no resizing needed.
 
 **3. Create a `config.json`** *(optional)*
 (an example is on mod folder at `custom_characters` folder)
@@ -110,10 +113,13 @@ The character appears automatically in the CHARACTER, RIVAL, and FOLLOWER lists 
 ```
 custom_characters/         ← folder inside the game's data directory
 └── ash/
-    ├── walk.png           ← required: 6 frames, same layout as brock.png
-    ├── front.png          ← required
-    ├── back.png           ← required
-    ├── bike.png           ← optional: 6 frames, same layout as red_bike.png
+    ├── walk.png           ← required: 16 × 96 px, 6 frames of 16 × 16 stacked vertically
+    ├── front.png          ← required: 56 × 56 px
+    ├── back.png           ← required: 56 × 56 px
+    ├── bike.png           ← optional: 16 × 96 px, same layout as walk.png
+    ├── fish_front.png     ← optional: 16 × 8 px, fishing pose facing down
+    ├── fish_back.png      ← optional: 16 × 8 px, fishing pose facing up
+    ├── fish_side.png      ← optional: 16 × 8 px, fishing pose facing left/right
     └── config.json        ← optional; label, starterSpecies (Yellow only), mirrorBack, trueColor
 ```
 
