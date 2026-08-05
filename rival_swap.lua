@@ -90,24 +90,40 @@ function RivalSwap.init(mod, characters, availableId)
   end)
 
   -- ── battle: opponent trainer portrait substitution ────────────────────────────
-  -- LIMITATION: without a "trainer.pic" hook in the engine, we cannot substitute
-  -- the trainerPic with correct palette via mod. The sprite will appear in grayscale.
-  -- Issue to report: add "trainer.pic" hook analogous to "player.sprite".
-  mod.events:on("battle.started", function(ev)
-    local battle = ev and ev.battle
-    if not (battle and battle.kind == "trainer") then return end
-    if not RIVAL_OPP_CLASSES[battle.oppClass] then return end
-    local rivalId = RivalSwap._resolveSelectedRival(mod, availableId)
-    if rivalId == RIVAL_DEFAULT_ID then return end
-    local frontPath = FRONT_PATH_BY_ID[rivalId]
-    if not frontPath then return end
-    -- Load image directly (no palette — will appear gray/black-and-white)
-    local ok, img = pcall(love.graphics.newImage, frontPath)
-    if ok and img then
-      battle.trainerPic = img
-    else
-      mod.log:warn("battle rival pic load failed for %s: %s", rivalId, tostring(img))
+  -- BattleState.newTrainer builds self.trainerPic via getImage(trainerPicPath, trainerPalette).
+  -- trainerPicPath reads trainer.pic; trainerPalette reads trainer.paletteSource.
+  -- Patching both fields on the OPP_RIVAL* records before battle construction
+  -- makes the engine apply the correct palette automatically — no hook needed.
+  -- Patches are applied on game.ready and on save.loaded so they survive
+  -- a continue/load flow. The patch is reset to BLUE defaults when BLUE is selected.
+  local function _patchRivalTrainerRecords(rivalId)
+    local frontPath     = FRONT_PATH_BY_ID[rivalId]
+    local paletteSource = rivalId ~= RIVAL_DEFAULT_ID
+                          and ("SPRITE_" .. rivalId)
+                          or nil
+    for oppClass in pairs(RIVAL_OPP_CLASSES) do
+      if rivalId == RIVAL_DEFAULT_ID then
+        -- restore vanilla: clear mod-set pic/paletteSource so the engine
+        -- falls back to the original trainer.pic from game.data.trainers
+        mod.content.trainers:patch(oppClass, { pic = nil, paletteSource = nil })
+      else
+        mod.content.trainers:patch(oppClass, {
+          pic           = frontPath    or nil,
+          paletteSource = paletteSource,
+        })
+      end
     end
+  end
+
+  mod.events:on("game.ready", function()
+    local rivalId = RivalSwap._resolveSelectedRival(mod, availableId)
+    _patchRivalTrainerRecords(rivalId)
+  end)
+
+  -- Re-apply after a continue/load because mod.content merges reset on save swap.
+  mod.events:on("save.loaded", function()
+    local rivalId = RivalSwap._resolveSelectedRival(mod, availableId)
+    _patchRivalTrainerRecords(rivalId)
   end)
 
   -- ── selection screen ────────────────────────────────────────────────────────
@@ -171,9 +187,20 @@ function RivalSwap._applyRivalSelection(mod, game, id, availableId)
   local ok2 = pcall(mod.options.set, mod.options, "rival", id)
   if not ok1 then mod.log:error("_applyRivalSelection: save:set failed for %q", id) end
   if not ok2 then mod.log:error("_applyRivalSelection: options:set failed for %q", id) end
+  -- Patch trainer records so the next battle uses the correct pic and palette.
+  local frontPath     = FRONT_PATH_BY_ID[id]
+  local paletteSource = id ~= RIVAL_DEFAULT_ID and ("SPRITE_" .. id) or nil
+  for oppClass in pairs(RIVAL_OPP_CLASSES) do
+    if id == RIVAL_DEFAULT_ID then
+      mod.content.trainers:patch(oppClass, { pic = nil, paletteSource = nil })
+    else
+      mod.content.trainers:patch(oppClass, {
+        pic           = frontPath    or nil,
+        paletteSource = paletteSource,
+      })
+    end
+  end
   -- Apply immediately to current map NPCs if available.
-  -- When id == RIVAL_DEFAULT_ID (BLUE), restores vanilla sprite via
-  -- _applyRivalNPCSprites passing "BLUE" — lookup will use data.sprites["SPRITE_BLUE"].
   local ow = game and game.overworld
   if ow then
     RivalSwap._applyRivalNPCSprites(mod, ow, id)
