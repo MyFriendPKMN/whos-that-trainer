@@ -156,7 +156,6 @@ If you're updating from an older version (< 0.0.3), you may need to regenerate b
 - [x] Custom Sprite Injection: Allow players to load custom PNG files to create their own characters.
 - [x] Starter Swap: Syncs the starter with the character(at now just yellow and it add as a 2nd starter).
 - [ ] **Change every gym leader and elite 4** allow to setup every gym leader as you want, what about lance as 1st gym leader? or misty as last elite four member ... or maybe YOU?.
-- [ ] **Bug sprite that pocket you when start a new game** that last sprite is showing RED and not the stand trainer setup sprite.
 - [ ] **Custom Starter follow as the default and dont has humor window**.
 - [ ] **follower vanilla and rival:** a BUG that rival and follower back to original sometimes on overworld.
 

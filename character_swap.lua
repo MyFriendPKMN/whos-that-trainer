@@ -194,7 +194,7 @@ function CharacterSwap.init(mod, characters)
   -- OakSpeech.new() captures playerPic via Sprites.playerPath at construction
   -- time, before game.ready fires. intro.oak_speech.started fires after
   -- buildSteps() but before the first frame, giving a safe window to replace
-  -- speech.playerPic and speech.playerTrueColor.
+  -- speech.playerPic, speech.playerTrueColor, and speech.walkSheet.
   -- The player.sprite hook already handles this path via Sprites.playerPath,
   -- but OakSpeech caches the result in self.playerPic at construction.
   -- Overwriting it here keeps the intro in sync with the selected character.
@@ -209,15 +209,35 @@ function CharacterSwap.init(mod, characters)
     if not ok then return end
     local game = speech.game
     local path, trueColor = Sprites.playerPath(game.data, "front", { kind = "intro" })
-    if not path then return end
-    local Assets = require("src.render.Assets")
-    local resolved = Assets.resolve and Assets.resolve(path) or path
-    local imgOk, img = pcall(love.graphics.newImage, resolved)
-    if imgOk and img then
-      speech.playerPic      = img
-      speech.playerTrueColor = trueColor and true or false
-    else
-      mod.log:warn("intro player pic load failed for %s: %s", id, tostring(img))
+    if path then
+      local Assets = require("src.render.Assets")
+      local resolved = Assets.resolve and Assets.resolve(path) or path
+      local imgOk, img = pcall(love.graphics.newImage, resolved)
+      if imgOk and img then
+        speech.playerPic      = img
+        speech.playerTrueColor = trueColor and true or false
+      else
+        mod.log:warn("intro player pic load failed for %s: %s", id, tostring(img))
+      end
+    end
+    -- Replace the walk sheet that the shrink animation draws in frames 29-78.
+    -- OakSpeech hardcodes SPRITE_RED for this; swap it to the character's
+    -- registered walk sprite so the last frame before the map loads shows
+    -- the correct trainer instead of RED.
+    local walkId = WALK_ID_BY_ID[id]
+    local spriteDef = walkId and mod.content.sprites:get(walkId)
+    local walkImage = spriteDef and spriteDef.image
+                      or WALK_IMAGE_BY_ID[id]
+    if walkImage then
+      local Assets = require("src.render.Assets")
+      local resolved = Assets.resolve and Assets.resolve(walkImage) or walkImage
+      local sheetOk, sheet = pcall(love.graphics.newImage, resolved)
+      if sheetOk and sheet then
+        speech.walkSheet = sheet
+        speech.walkQuad  = nil  -- reset cached quad so it's rebuilt at the new dimensions
+      else
+        mod.log:warn("intro walk sheet load failed for %s: %s", id, tostring(sheet))
+      end
     end
   end)
 
