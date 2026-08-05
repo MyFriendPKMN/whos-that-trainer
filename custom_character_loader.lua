@@ -418,11 +418,16 @@ local function _scanAndInject(mod, Characters)
     -- "mods/whos-that-trainer/custom_characters/big_red/back.png");
     -- do NOT wrap it in mod.assets:path() which would prepend mod.path
     -- a second time and produce a path that never matches imageMeta.
+    -- Use characterId as the registry key so multiple custom characters
+    -- with battleScale don't collide on the same "hero_back" entry.
     if config.battleScale then
-      mod.content.battle_sprite_scales:register("hero_back", {
-        path  = record.backPath,
-        scale = config.battleScale
-      })
+      mod.content.battle_sprite_scales:register(
+        "hero_back_" .. characterId:lower(),
+        {
+          path  = record.backPath,
+          scale = config.battleScale
+        }
+      )
     end
 
     -- Inject into the Characters table.
