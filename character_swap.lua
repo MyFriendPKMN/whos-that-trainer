@@ -218,6 +218,13 @@ function CharacterSwap.init(mod, characters)
   -- Back fallback chain:  dedicated backPath → next() (RED vanilla)
   -- Front fallback chain: dedicated frontPath → walkImage → next() (RED vanilla)
   mod.hooks:wrap("player.sprite", function(next, path, ctx)
+    -- Demo battles (old man catch tutorial, Prof. Oak's Pallet intro) must
+    -- show the old man / Oak back pic, not the player's custom sprite.
+    -- ctx.demo == true  → old man (BATTLE_TYPE_OLD_MAN)
+    -- ctx.oakDemo == true → Prof. Oak (BATTLE_TYPE_PIKACHU, Yellow only)
+    if ctx.demo or ctx.oakDemo then
+      return next(path, ctx)
+    end
     local id = CharacterSwap._resolveSelectedId(mod)
     if ctx.side == "back" then
       -- 1st: dedicated back sprite (derived by transforms.lua for all non-RED characters)
