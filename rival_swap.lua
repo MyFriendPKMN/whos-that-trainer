@@ -58,6 +58,29 @@ function RivalSwap.init(mod, characters, availableId)
     },
   }
 
+  -- Inject the custom rival portrait into the Oak intro speech.
+  -- OakSpeech.new() captures rivalPic from trainers.OPP_RIVAL1.pic at
+  -- construction time, before game.ready fires. The patch applied in
+  -- game.ready/save.loaded is too late for a new-game flow.
+  -- intro.oak_speech.started fires after buildSteps() but before the first
+  -- frame renders, giving us a safe window to overwrite speech.rivalPic.
+  mod.events:on("intro.oak_speech.started", function(ev)
+    local speech = ev and ev.speech
+    if not speech then return end
+    local rivalId = RivalSwap._resolveSelectedRival(mod, availableId)
+    if rivalId == RIVAL_DEFAULT_ID then return end
+    local frontPath = FRONT_PATH_BY_ID[rivalId]
+    if not frontPath then return end
+    local Assets = require("src.render.Assets")
+    local resolved = Assets.resolve and Assets.resolve(frontPath) or frontPath
+    local ok, img = pcall(love.graphics.newImage, resolved)
+    if ok and img then
+      speech.rivalPic = img
+    else
+      mod.log:warn("intro rival pic load failed for %s: %s", rivalId, tostring(img))
+    end
+  end)
+
   -- Initial validation
   mod.events:on("game.ready", function()
     local chosen = RivalSwap._resolveSelectedRival(mod, availableId)

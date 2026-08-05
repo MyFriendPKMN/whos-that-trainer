@@ -190,6 +190,37 @@ function CharacterSwap.init(mod, characters)
     ::continue::
   end
 
+  -- Inject the custom player portrait into the Oak intro speech.
+  -- OakSpeech.new() captures playerPic via Sprites.playerPath at construction
+  -- time, before game.ready fires. intro.oak_speech.started fires after
+  -- buildSteps() but before the first frame, giving a safe window to replace
+  -- speech.playerPic and speech.playerTrueColor.
+  -- The player.sprite hook already handles this path via Sprites.playerPath,
+  -- but OakSpeech caches the result in self.playerPic at construction.
+  -- Overwriting it here keeps the intro in sync with the selected character.
+  mod.events:on("intro.oak_speech.started", function(ev)
+    local speech = ev and ev.speech
+    if not speech then return end
+    local id = CharacterSwap._resolveSelectedId(mod)
+    if id == DEFAULT_ID then return end
+    -- Reuse the same hook seam: call Sprites.playerPath which will invoke
+    -- our player.sprite hook and return the correct path for this character.
+    local ok, Sprites = pcall(require, "src.pokemon.Sprites")
+    if not ok then return end
+    local game = speech.game
+    local path, trueColor = Sprites.playerPath(game.data, "front", { kind = "intro" })
+    if not path then return end
+    local Assets = require("src.render.Assets")
+    local resolved = Assets.resolve and Assets.resolve(path) or path
+    local imgOk, img = pcall(love.graphics.newImage, resolved)
+    if imgOk and img then
+      speech.playerPic      = img
+      speech.playerTrueColor = trueColor and true or false
+    else
+      mod.log:warn("intro player pic load failed for %s: %s", id, tostring(img))
+    end
+  end)
+
   -- 2. Initialize default selection on game.ready
   mod.events:on("game.ready", function()
     local chosen = CharacterSwap._resolveSelectedId(mod)
