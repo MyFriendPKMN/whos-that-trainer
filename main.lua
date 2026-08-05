@@ -20,7 +20,7 @@ return function(mod)
   -- both modules return their schemas and the call is made only once.
   local charSchema     = CharacterSwap.init(mod, Characters)
   local rivalSchema    = RivalSwap.init(mod, Characters, CharacterSwap.AVAILABLE_ID)
-  local followerSchema = FollowerSwap.init(mod, Characters, CharacterSwap.AVAILABLE_ID)
+  local followerSchema = FollowerSwap.init(mod, Characters, CharacterSwap.AVAILABLE_ID, RivalSwap._resolveSpriteDef)
   StarterSwap.init(mod, Characters, CharacterSwap)
 
   -- Single define call: combines rows from both modules.

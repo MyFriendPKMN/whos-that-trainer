@@ -6,6 +6,9 @@
 -- The follower Pikachu lives in ow.npcs and is accessed via PikachuFollower.current(ow).
 -- When "DEFAULT" is active the handler returns immediately without touching the follower
 -- sprite, preserving vanilla engine behavior (Pikachu in Yellow, nothing in Red/Blue).
+--
+-- resolveSpriteDef is injected by main.lua (RivalSwap._resolveSpriteDef) so the
+-- "try mod registry, fall back to vanilla data.sprites" logic lives in one place.
 
 local FollowerSwap = {}
 
@@ -14,6 +17,9 @@ local PSS_PREFIX          = "MOD_PSS_"
 
 -- Lookup table: character id -> char.walkId (canonical mod registry key for walk sprite)
 local WALK_ID_BY_CHAR_ID = {}
+
+-- Injected by FollowerSwap.init; shared with rival_swap to avoid duplication.
+local _resolveSpriteDef = nil
 
 -- ── persistence ──────────────────────────────────────────────────────────────
 
@@ -43,7 +49,11 @@ end
 -- Initializes the follower swap module.
 -- Populates WALK_ID_BY_CHAR_ID, registers event handlers and the selection screen,
 -- and returns the option schema for main.lua to accumulate into mod.options:define.
-function FollowerSwap.init(mod, characters, availableId)
+-- resolveSpriteDef: function(mod, charId) -> spriteDef|nil  (injected from RivalSwap)
+function FollowerSwap.init(mod, characters, availableId, resolveSpriteDef)
+  -- Store the injected helper for use in _applyFollowerSprite.
+  _resolveSpriteDef = resolveSpriteDef
+
   -- Populate walk id lookup from the shared characters catalog
   for _, char in ipairs(characters) do
     WALK_ID_BY_CHAR_ID[char.id] = char.walkId
@@ -175,20 +185,20 @@ function FollowerSwap._applyFollowerSprite(mod, ow, followerId)
 
   local SpriteRenderer = require("src.render.SpriteRenderer")
 
-  -- Resolve sprite definition using the canonical walkId from the characters catalog.
-  -- Prefer mod.content.sprites (merged view) over data.sprites (vanilla only).
-  local walkId    = WALK_ID_BY_CHAR_ID[followerId]
-  local spriteDef = nil
-
-  if walkId then
-    spriteDef = mod.content.sprites:get(walkId)
-  end
-
-  if not spriteDef then
-    -- Fallback: vanilla data.sprites entry for RED or any character without a mod registration
-    local ok, data = pcall(require, "src.core.Data")
-    if ok and data and data.sprites then
-      spriteDef = data.sprites["SPRITE_" .. followerId]
+  -- Resolve sprite definition using the shared helper (mod registry first,
+  -- vanilla data.sprites fallback). Falls back on the walkId-keyed lookup
+  -- when the helper is not available (e.g. headless test environments).
+  local spriteDef
+  if _resolveSpriteDef then
+    spriteDef = _resolveSpriteDef(mod, followerId)
+  else
+    local walkId = WALK_ID_BY_CHAR_ID[followerId]
+    spriteDef = walkId and mod.content.sprites:get(walkId)
+    if not spriteDef then
+      local ok, data = pcall(require, "src.core.Data")
+      if ok and data and data.sprites then
+        spriteDef = data.sprites["SPRITE_" .. followerId]
+      end
     end
   end
 
