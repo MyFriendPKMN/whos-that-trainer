@@ -75,6 +75,7 @@ The subfolder name (lowercase) becomes the character's internal ID. For example,
 | `palette` | string | No | `nil` | Borrow the GBC/SGB palette from a built-in character (e.g. `"BROCK"`, `"MISTY"`, `"SPRITE_GIOVANNI"`). Only takes effect in **COLORS = RED++** mode. See palette notes below. |
 | `mirrorBack` | boolean | No | `false` | Horizontally flips `back.png` when displayed in battle |
 | `trueColor` | boolean | No | `true` | When `true` (the default), your PNG colors are displayed exactly as painted — no recolorization is applied regardless of the COLORS setting. Set to `false` only when you also set `palette`. |
+| `battleScale` | number | No | `nil` (uses engine default of 2×) | Scale factor for `back.png` in battle. Valid range: `0.25`–`4.0`. The sprite is always feet-pinned (bottom edge stays at the text box). The engine default for the player back sprite is `2.0`; set to `3.0` for a larger character, `1.0` for native pixel size. Note: very large values may be clipped by the battle canvas edges. |
 
 #### 🎨 Palette options explained
 
@@ -120,7 +121,7 @@ custom_characters/         ← folder inside the game's data directory
     ├── fish_front.png     ← optional: 16 × 8 px, fishing pose facing down
     ├── fish_back.png      ← optional: 16 × 8 px, fishing pose facing up
     ├── fish_side.png      ← optional: 16 × 8 px, fishing pose facing left/right
-    └── config.json        ← optional; label, starterSpecies (Yellow only), mirrorBack, trueColor
+    └── config.json        ← optional; label, starterSpecies (Yellow only), mirrorBack, trueColor, battleScale
 ```
 
 > 💡 The `custom_characters/example_custom/` folder included in the mod already contains placeholder sprites and a filled-in `config.json` to use as a starting point.

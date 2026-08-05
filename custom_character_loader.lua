@@ -114,6 +114,13 @@ local function _parseConfig(src, subfolder)
     config.palette = nil
   end
 
+    -- battleScale: number, default nil
+  if type(decoded.battleScale) == "number" then
+    config.battleScale = decoded.battleScale
+  else
+    config.battleScale = nil
+  end
+
   return config, nil
 end
 
@@ -405,6 +412,18 @@ local function _scanAndInject(mod, Characters)
       starterSpecies = config.starterSpecies,
       paletteSource  = paletteSource,
     }
+
+    -- apply the battleScale configured if exists on JSON
+    -- record.backPath is already the full relative path (e.g.
+    -- "mods/whos-that-trainer/custom_characters/big_red/back.png");
+    -- do NOT wrap it in mod.assets:path() which would prepend mod.path
+    -- a second time and produce a path that never matches imageMeta.
+    if config.battleScale then
+      mod.content.battle_sprite_scales:register("hero_back", {
+        path  = record.backPath,
+        scale = config.battleScale
+      })
+    end
 
     -- Inject into the Characters table.
     Characters[#Characters + 1] = record
