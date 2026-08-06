@@ -1,7 +1,8 @@
 {
   "label": "KAWFY_DEFAULT_PALLET",
   "starterSpecies": "DODUO",
+  "palette": "PIKACHU",
   "mirrorBack": false,
   "trueColor": false,
-  "battleScale": 1
+  "battleScale": 1.0
 }

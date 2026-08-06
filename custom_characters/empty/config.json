@@ -1,6 +1,6 @@
 {
-  "label": "KAWFY_TRUE_COLORS",
-  "starterSpecies": "PORYGON",
+  "label": "EMPTY",
+  "starterSpecies": null,
   "palette": null,
   "mirrorBack": false,
   "trueColor": true,

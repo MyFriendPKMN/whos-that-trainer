@@ -12,8 +12,9 @@ local Json = require("src.link.Json")
 -- Custom characters directory name, relative to the mod folder.
 local CUSTOM_DIR = "custom_characters"
 
--- Required sprite filenames that must be present in every character subfolder.
-local REQUIRED_SPRITES = { "walk.png", "front.png", "back.png" }
+-- Optional sprite filenames. If absent, the character falls back to vanilla RED sprites.
+-- Characters can be created with just a config.json file (no sprite files needed).
+local OPTIONAL_SPRITES = { "walk.png", "front.png", "back.png", "bike.png" }
 
 -- ---------------------------------------------------------------------------
 -- Private helpers
@@ -124,36 +125,25 @@ local function _parseConfig(src, subfolder)
   return config, nil
 end
 
--- Checks that all three required sprites exist inside the given subfolder.
--- Uses love.filesystem.getInfo; gracefully handles environments where LÖVE
--- is not available (always returns true in that case, e.g. headless tests).
+-- Checks whether an optional sprite exists inside the given subfolder.
+-- Uses love.filesystem.getInfo; returns nil if not found or environment doesn't support it.
 --
--- Returns: true               if all sprites are present
---          false, missingList if one or more sprites are absent
---
--- @param subfolder  Subfolder name (e.g. "ash")
--- @param basePath   Absolute base path (e.g. the mod's custom_characters/ dir)
-local function _validateSprites(subfolder, basePath)
+-- @param filename  Sprite filename (e.g. "walk.png")
+-- @param subfolder Subfolder name (e.g. "ash")
+-- @param basePath  Absolute base path (e.g. the mod's custom_characters/ dir)
+-- @return          Full path if found, nil otherwise
+local function _getOptionalSpritePath(filename, subfolder, basePath)
   local fs = love and love.filesystem
   if not (fs and fs.getInfo) then
-    -- Cannot verify; assume valid to avoid blocking headless environments.
-    return true
+    return nil
   end
 
-  local missing = {}
-  for _, filename in ipairs(REQUIRED_SPRITES) do
-    local path = basePath .. "/" .. subfolder .. "/" .. filename
-    -- Wrap getInfo in pcall to handle unexpected filesystem errors gracefully.
-    local ok, info = pcall(fs.getInfo, path)
-    if not ok or not info then
-      missing[#missing + 1] = filename
-    end
+  local path = basePath .. "/" .. subfolder .. "/" .. filename
+  local ok, info = pcall(fs.getInfo, path)
+  if ok and info then
+    return path
   end
-
-  if #missing == 0 then
-    return true
-  end
-  return false, missing
+  return nil
 end
 
 -- ---------------------------------------------------------------------------
@@ -239,16 +229,8 @@ local function _scanAndInject(mod, Characters)
       goto continue
     end
 
-    -- Validate required sprites.
-    local spritesOk, missingList = _validateSprites(item, customDir)
-    if not spritesOk then
-      mod.log:warn(
-        "custom_characters/%s: missing required sprite(s): %s — skipped",
-        item,
-        table.concat(missingList, ", ")
-      )
-      goto continue
-    end
+    -- No mandatory sprite validation. Characters can be created with just config.json.
+    -- Sprites are resolved optionally below, with fallbacks to vanilla RED sprites.
 
     -- Derive the Character_ID.
     local characterId = "CUSTOM_" .. string.upper(item)
@@ -365,35 +347,23 @@ local function _scanAndInject(mod, Characters)
       )
     end
 
+    -- Resolve optional sprites: walk.png, front.png, back.png.
+    -- If not found, they will be nil and the engine will use vanilla RED fallbacks.
+    local walkImagePath = _getOptionalSpritePath("walk.png", item, customDir)
+    local frontPngPath = _getOptionalSpritePath("front.png", item, customDir)
+    local backPngPath = _getOptionalSpritePath("back.png", item, customDir)
+
     -- Check for optional bike.png; nil means fall back to vanilla RED bike sprite.
-    local bikePngPath = customDir .. "/" .. item .. "/bike.png"
-    local bikePathValue = nil
-    do
-      local fs = love and love.filesystem
-      if fs and fs.getInfo then
-        local bikeOk, bikeInfo = pcall(fs.getInfo, bikePngPath)
-        if bikeOk and bikeInfo then
-          bikePathValue = bikePngPath
-        end
-      end
-    end
+    local bikePathValue = _getOptionalSpritePath("bike.png", item, customDir)
 
     -- Check for optional fishing pose tiles; nil means fall back to RED's tiles.
     local fishPathsValue = nil
     do
-      local fs = love and love.filesystem
-      if fs and fs.getInfo then
-        local function optPath(filename)
-          local p = customDir .. "/" .. item .. "/" .. filename
-          local ok, info = pcall(fs.getInfo, p)
-          return (ok and info) and p or nil
-        end
-        local fd = optPath("fish_front.png")
-        local fb = optPath("fish_back.png")
-        local fs2 = optPath("fish_side.png")
-        if fd or fb or fs2 then
-          fishPathsValue = { down = fd, up = fb, left = fs2, right = fs2 }
-        end
+      local fd = _getOptionalSpritePath("fish_front.png", item, customDir)
+      local fb = _getOptionalSpritePath("fish_back.png", item, customDir)
+      local fs = _getOptionalSpritePath("fish_side.png", item, customDir)
+      if fd or fb or fs then
+        fishPathsValue = { down = fd, up = fb, left = fs, right = fs }
       end
     end
 
@@ -402,9 +372,9 @@ local function _scanAndInject(mod, Characters)
       id             = characterId,
       label          = config.label,
       walkId         = walkId,
-      walkImage      = customDir .. "/" .. item .. "/walk.png",
-      backPath       = customDir .. "/" .. item .. "/back.png",
-      frontPath      = customDir .. "/" .. item .. "/front.png",
+      walkImage      = walkImagePath,  -- nil if not found
+      backPath       = backPngPath,    -- nil if not found
+      frontPath      = frontPngPath,   -- nil if not found
       bikePath       = bikePathValue,
       fishPaths      = fishPathsValue,
       mirrorBack     = config.mirrorBack,
@@ -413,18 +383,13 @@ local function _scanAndInject(mod, Characters)
       paletteSource  = paletteSource,
     }
 
-    -- apply the battleScale configured if exists on JSON
-    -- record.backPath is already the full relative path (e.g.
-    -- "mods/whos-that-trainer/custom_characters/big_red/back.png");
-    -- do NOT wrap it in mod.assets:path() which would prepend mod.path
-    -- a second time and produce a path that never matches imageMeta.
-    -- Use characterId as the registry key so multiple custom characters
-    -- with battleScale don't collide on the same "hero_back" entry.
-    if config.battleScale then
+    -- Apply battleScale if configured.
+    -- Only register if backPath exists; otherwise it will use vanilla RED.
+    if config.battleScale and backPngPath then
       mod.content.battle_sprite_scales:register(
         "hero_back_" .. characterId:lower(),
         {
-          path  = record.backPath,
+          path  = backPngPath,
           scale = config.battleScale
         }
       )

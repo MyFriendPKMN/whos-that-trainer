@@ -156,22 +156,19 @@ function CharacterSwap.init(mod, characters)
           source        = paletteSource,
         })
       else
-        -- walkImage == nil: relies on a vanilla engine sprite def.
+        -- walkImage == nil: no custom overworld sprite.
+        -- Character is still available for battle/trainer card usage if it has
+        -- frontPath or backPath (via player.sprite hook) or if it's purely config-based.
+        -- Only RED (VANILLA_ID) requires no sprite resources.
         if char.id ~= VANILLA_ID then
-          local vanillaId = char.paletteSource
-          if not (vanillaId and dataSprites and dataSprites[vanillaId]) then
-            mod.log:warn("character %s: vanilla sprite %q not found in engine cache — character unavailable",
-                         char.id, tostring(vanillaId))
-            error("vanilla sprite not found")
-          end
+          mod.log:info("character %s: no walkImage provided — will use vanilla RED overworld sprite",
+                       char.id)
         end
       end
     end)
     if not ok then
-      if not tostring(err):find("vanilla sprite not found", 1, true) then
-        mod.log:warn("character %s: sprites:register failed (%s) — skipped",
-                     char.id, tostring(err))
-      end
+      mod.log:warn("character %s: sprites:register failed (%s) — skipped",
+                   char.id, tostring(err))
       goto continue
     end
     AVAILABLE_ID[char.id] = true
@@ -246,6 +243,7 @@ function CharacterSwap.init(mod, characters)
   -- 5. player.sprite hook: back/front sprites for battle, trainer card, HoF.
   -- DEFAULT → pass through to next() for all branches (vanilla RED).
   -- Demo battles (old man, Prof. Oak) always pass through regardless.
+  -- Characters with nil frontPath/backPath use vanilla RED sprites.
   mod.hooks:wrap("player.sprite", function(next, path, ctx)
     if ctx.demo or ctx.oakDemo then
       return next(path, ctx)
@@ -259,10 +257,8 @@ function CharacterSwap.init(mod, characters)
       if bp and assetExists(bp) then
         if TRUECOLOR_BY_ID[id] then ctx.trueColor = true end
         return bp
-      elseif bp then
-        mod.log:warn("player.sprite: backPath %q not found for %q — falling back to vanilla",
-                     tostring(bp), tostring(id))
       end
+      -- backPath is nil or asset not found; use vanilla RED back sprite.
       return next(path, ctx)
     elseif ctx.side == "front" then
       local fp = FRONT_PATH_BY_ID[id]
@@ -270,8 +266,10 @@ function CharacterSwap.init(mod, characters)
         if TRUECOLOR_BY_ID[id] then ctx.trueColor = true end
         return fp
       end
+      -- frontPath is nil; try walkImage as fallback.
       local wp = WALK_IMAGE_BY_ID[id]
       if wp then return wp end
+      -- No front or walk image; use vanilla RED front sprite.
       return next(path, ctx)
     end
     return next(path, ctx)

@@ -44,19 +44,19 @@ custom_characters/<name>/
 
 The subfolder name (lowercase) becomes the character's internal ID. For example, the folder `ash` produces the ID `CUSTOM_ASH`.
 
-**2. Add your sprites**
+**2. Add your sprites** *(all optional — any missing sprites will use vanilla RED as fallback)*
 
 | File | Size | Description |
 |---|---|---|
-| `walk.png` | **16 × 96 px** | Walking sprite sheet — 6 frames of 16 × 16 stacked vertically (stand down/up/left, walk down/up/left). Right-facing frames are mirrored automatically. Gen 2 overworld sprites must be scaled down manually to fit. |
-| `front.png` | **56 × 56 px** | Front-facing sprite — used on the trainer card, intro, and Hall of Fame. Drawn at 1×. Gen 2 trainer fronts fit at native size. |
-| `back.png` | **56 × 56 px** | Back-facing sprite — used in battles. Drawn at 2×. Gen 2 back sprites fit at native size. |
+| `walk.png` | **16 × 96 px** | Walking sprite sheet — 6 frames of 16 × 16 stacked vertically (stand down/up/left, walk down/up/left). Right-facing frames are mirrored automatically. Gen 2 overworld sprites must be scaled down manually to fit. If omitted, the game uses the vanilla RED overworld sprite. |
+| `front.png` | **56 × 56 px** | Front-facing sprite — used on the trainer card, intro, and Hall of Fame. Drawn at 1×. Gen 2 trainer fronts fit at native size. If omitted, the game uses the vanilla RED front sprite. |
+| `back.png` | **56 × 56 px** | Back-facing sprite — used in battles. Drawn at 2×. Gen 2 back sprites fit at native size. If omitted, the game uses the vanilla RED back sprite. |
 | `bike.png` | **16 × 96 px** | Bike sprite sheet — same 6-frame layout as `walk.png`. If absent, the game uses the default RED bike sprite. |
 | `fish_front.png` | **16 × 8 px** | Fishing pose tile for facing **down**. If absent, RED's fishing tile is used. |
 | `fish_back.png` | **16 × 8 px** | Fishing pose tile for facing **up**. If absent, RED's fishing tile is used. |
 | `fish_side.png` | **16 × 8 px** | Fishing pose tile for facing **left/right**. If absent, RED's fishing tile is used. |
 
-> ⚠️ `walk.png` and `bike.png` must be exactly **16 × 96 px**. All other sprites drop in at their listed native size with no resizing needed.
+> ✨ **New in v1.4:** You can now create a character using **only a `config.json` file** — no sprite files required! The character will use vanilla RED sprites for overworld and battle, but can still have custom `label`, `starterSpecies` (Yellow only), and other config options. This is perfect for creating character variants or trainer data tweaks without custom artwork.
 
 **3. Create a `config.json`** *(optional)*
 (an example is on mod folder at `custom_characters` folder)
@@ -91,14 +91,56 @@ Leave `palette` unset (or `null`). The game renders your PNG with its original c
 
 **Borrow a built-in palette**
 
-Set `palette` to the id of any built-in character (e.g. `"BROCK"`) or its sprite id (e.g. `"SPRITE_BROCK"`). The game will then recolorize your sprites using that character's palette ramp.
+Set `palette` to the id of any built-in character (e.g. `"BROCK"`, `"MISTY"`, etc.), or any Pokémon species (e.g. `"BULBASAUR"`, `"PIKACHU"`, etc.). You can use either the ID or the sprite ID (both work):
+- Character/Species ID: `"BROCK"` → automatically becomes `"SPRITE_BROCK"`
+- Sprite ID: `"SPRITE_BROCK"` → used as-is
+
+The game will then recolorize your sprites using that sprite's palette ramp.
 
 - Only takes effect in **COLORS = RED++** mode. In all other modes (SGB, OG RED, OG BLUE, etc.) the sprite is still rendered through the standard DMG shade pipeline, the same as any other overworld character.
 - Your PNG must use the standard 4-shade DMG grayscale ramp (white / light gray / dark gray / black) for the recolorization to look correct.
 - There is no way to define a fully custom palette that has never appeared in the game — the palette system only has slots for palettes already present in the ROM data.
 
+**Available palette IDs (Trainers):**
+
+| Character | ID | Character | ID |
+|---|---|---|---|
+| Red | `RED` | Lorelei | `LORELEI` |
+| Giovanni | `GIOVANNI` | Bruno | `BRUNO` |
+| Brock | `BROCK` | Agatha | `AGATHA` |
+| Misty | `MISTY` | Lance | `LANCE` |
+| Lt. Surge | `LT_SURGE` | Blue | `BLUE` |
+| Erika | `ERIKA` | Jessie | `JESSIE` |
+| Koga | `KOGA` | James | `JAMES` |
+| Sabrina | `SABRINA` | Oak | `OAK` |
+| Blaine | `BLAINE` | Pikachu | `PIKACHU` |
+
+**Available palette IDs (Pokémon species):**
+
+You can also use any Pokémon species as a palette source. For example:
+- `"BULBASAUR"` → uses Bulbasaur's green palette
+- `"CHARIZARD"` → uses Charizard's red/orange palette
+- `"SQUIRTLE"` → uses Squirtle's cyan/blue palette
+- `"PIKACHU"` → uses Pikachu's yellow palette
+
+Or any of the 151 Gen 1 Pokémon species names in uppercase (e.g. `"ARCANINE"`, `"GYARADOS"`, `"ALAKAZAM"`, etc.)
+
+**Example:**
+
 ```json
 { "label": "Ash", "palette": "MISTY", "trueColor": false }
+```
+
+or using a Pokémon palette:
+
+```json
+{ "label": "Yellow Trainer", "palette": "PIKACHU", "trueColor": false }
+```
+
+or equivalently (sprite ID format):
+
+```json
+{ "label": "Yellow Trainer", "palette": "SPRITE_PIKACHU", "trueColor": false }
 ```
 
 If `config.json` is absent, the mod uses the folder name in uppercase as the `label` and all other fields at their defaults.
@@ -109,20 +151,40 @@ The character appears automatically in the CHARACTER, RIVAL, and FOLLOWER lists 
 
 ---
 
-### Example folder structure
+### Example folder structures
+
+**Full character with custom sprites:**
 
 ```
-custom_characters/         ← folder inside the game's data directory
+custom_characters/
 └── ash/
-    ├── walk.png           ← required: 16 × 96 px, 6 frames of 16 × 16 stacked vertically
-    ├── front.png          ← required: 56 × 56 px
-    ├── back.png           ← required: 56 × 56 px
+    ├── walk.png           ← optional: 16 × 96 px, 6 frames of 16 × 16 stacked vertically
+    ├── front.png          ← optional: 56 × 56 px
+    ├── back.png           ← optional: 56 × 56 px
     ├── bike.png           ← optional: 16 × 96 px, same layout as walk.png
     ├── fish_front.png     ← optional: 16 × 8 px, fishing pose facing down
     ├── fish_back.png      ← optional: 16 × 8 px, fishing pose facing up
     ├── fish_side.png      ← optional: 16 × 8 px, fishing pose facing left/right
     └── config.json        ← optional; label, starterSpecies (Yellow only), mirrorBack, trueColor, battleScale
 ```
+
+**Minimal character (config-only, uses vanilla RED sprites):**
+
+```
+custom_characters/
+└── trainer_red/
+    └── config.json        ← Just this file!
+```
+
+Inside `config.json`:
+```json
+{
+  "label": "Trainer Red",
+  "starterSpecies": "BULBASAUR"
+}
+```
+
+This creates a playable character named "Trainer Red" with vanilla RED sprites but receives BULBASAUR as the starter (Yellow mode only).
 
 > 💡 The `custom_characters/example_custom/` folder included in the mod already contains placeholder sprites and a filled-in `config.json` to use as a starting point.
 
