@@ -5,7 +5,7 @@ Ever wanted to play Pokémon as yourself or Giovanni, Pikachu, or face Red as th
 
 ## ✨ Features
 
-- **17 Built-in Characters:** RED, GIOVANNI, PIKACHU, BROCK, MISTY, LT. SURGE, ERIKA, KOGA, SABRINA, BLAINE, LORELEI, BRUNO, AGATHA, LANCE, BLUE, JESSIE, and JAMES
+- **17 Built-in Characters:** RED, GIOVANNI, PIKACHU, BROCK, MISTY, LT. SURGE, ERIKA, KOGA, SABRINA, BLAINE, LORELEI, BRUNO, AGATHA, LANCE, BLUE, OAK, JESSIE, and JAMES
 - **Unlimited Custom Characters:** Drop your own sprites into `custom_characters/` — no Lua editing required
 - **Independent Selection:** Pick your player character, follower, and rival separately
 - **Full Sprite Support:** Overworld walking sprites, bike sprites, battle back sprites, and trainer card portraits
@@ -55,8 +55,6 @@ The subfolder name (lowercase) becomes the character's internal ID. For example,
 | `fish_front.png` | **16 × 8 px** | Fishing pose tile for facing **down**. If absent, RED's fishing tile is used. |
 | `fish_back.png` | **16 × 8 px** | Fishing pose tile for facing **up**. If absent, RED's fishing tile is used. |
 | `fish_side.png` | **16 × 8 px** | Fishing pose tile for facing **left/right**. If absent, RED's fishing tile is used. |
-
-> ✨ **New in v1.4:** You can now create a character using **only a `config.json` file** — no sprite files required! The character will use vanilla RED sprites for overworld and battle, but can still have custom `label`, `starterSpecies` (Yellow only), and other config options. This is perfect for creating character variants or trainer data tweaks without custom artwork.
 
 **3. Create a `config.json`** *(optional)*
 (an example is on mod folder at `custom_characters` folder)
@@ -137,12 +135,6 @@ or using a Pokémon palette:
 { "label": "Yellow Trainer", "palette": "PIKACHU", "trueColor": false }
 ```
 
-or equivalently (sprite ID format):
-
-```json
-{ "label": "Yellow Trainer", "palette": "SPRITE_PIKACHU", "trueColor": false }
-```
-
 If `config.json` is absent, the mod uses the folder name in uppercase as the `label` and all other fields at their defaults.
 
 **4. Restart the game**
@@ -200,7 +192,6 @@ love . --developer
 
 ## ⚠️ Known Limitations
 
-- **Rival battle portraits:** Currently display in grayscale due to engine palette pipeline limitations. This requires adding a `trainer.pic` hook to the engine core (tracked as future enhancement).
 - **Palette accuracy:** Some built-in characters may use fallback palettes if their original sprite data is unavailable in your ROM cache.
 
 ## 🔄 Updating from Previous Versions
