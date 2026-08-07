@@ -199,7 +199,16 @@ return {
     walkImage     = "assets/generated/sprites/blue.png",
     walkFallback  = "assets/generated/sprites/red.png",
     backPath      = "assets/generated/battle/player_back/blue_back.png", -- Derived in transforms.lua
-    frontPath     = "assets/generated/battle/trainers/rival3.png",  -- Late-rival trainer sprite
+    frontPath     = "assets/generated/battle/trainers/rival3.png",  -- Late-rival trainer sprite (Champion)
+    -- rival-specific portraits per encounter; each maps to the correct rival sprite:
+    --   OPP_RIVAL1 = early game (Oak's Lab, Cerulean, Route 22 pre-League) -> rival1.png
+    --   OPP_RIVAL2 = mid game (SS Anne, Lavender, Silph Co., Route 22) -> rival2.png
+    --   OPP_RIVAL3 = Champion battle -> rival3.png (same as frontPath)
+    rivalFrontPaths = {
+      [1] = "assets/generated/battle/trainers/rival1.png",
+      [2] = "assets/generated/battle/trainers/rival2.png",
+      [3] = "assets/generated/battle/trainers/rival3.png",
+    },
     trueColor     = false,
     paletteSource = "SPRITE_BLUE",
     mirrorBack    = true,

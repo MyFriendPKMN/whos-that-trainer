@@ -353,6 +353,18 @@ local function _scanAndInject(mod, Characters)
     local frontPngPath = _getOptionalSpritePath("front.png", item, customDir)
     local backPngPath = _getOptionalSpritePath("back.png", item, customDir)
 
+    -- Resolve optional rival-specific front sprites (for different rival encounters).
+    -- Used when the rival has multiple battle encounters with different portrait sprites.
+    -- front-rival1.png, front-rival2.png, front-rival3.png are optional.
+    -- If absent, the main frontPngPath is used as fallback for all rival encounters.
+    local rivalFrontPaths = {}
+    do
+      for rivalNum = 1, 3 do
+        local path = _getOptionalSpritePath("front-rival" .. rivalNum .. ".png", item, customDir)
+        rivalFrontPaths[rivalNum] = path or frontPngPath  -- fallback to main front sprite
+      end
+    end
+
     -- Check for optional bike.png; nil means fall back to vanilla RED bike sprite.
     local bikePathValue = _getOptionalSpritePath("bike.png", item, customDir)
 
@@ -375,6 +387,7 @@ local function _scanAndInject(mod, Characters)
       walkImage      = walkImagePath,  -- nil if not found
       backPath       = backPngPath,    -- nil if not found
       frontPath      = frontPngPath,   -- nil if not found
+      rivalFrontPaths = rivalFrontPaths,  -- rival-specific front sprites (per encounter)
       bikePath       = bikePathValue,
       fishPaths      = fishPathsValue,
       mirrorBack     = config.mirrorBack,

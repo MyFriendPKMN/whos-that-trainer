@@ -19,6 +19,7 @@ local RIVAL_OPP_CLASSES = {
 
 local FRONT_PATH_BY_ID = {}
 local WALK_IMAGE_BY_ID = {}
+local RIVAL_FRONT_PATHS_BY_ID = {}  -- rival-specific front sprites per encounter number
 
 -- ── persistence ──────────────────────────────────────────────────────────────
 
@@ -62,17 +63,51 @@ function RivalSwap._resolveSpriteDef(mod, charId)
 end
 
 -- ── trainer record patcher ───────────────────────────────────────────────────
--- Applies (or clears) the pic + paletteSource patch for a single oppClass.
--- rivalId == RIVAL_DEFAULT_ID or RIVAL_VANILLA_ID → clear mod overrides so
--- the engine falls back to its original trainer.pic from game.data.trainers.
+-- Writes the pic and paletteSource directly into game.data.trainers at
+-- runtime. mod.content.trainers:patch() only affects the boot-time merge and
+-- is frozen after that point, so live battles would still read the vanilla pic.
+-- Direct mutation of game.data.trainers is the same approach BattleState uses
+-- to swap the rival's name (setmetatable overlay in newTrainer).
+-- rivalId == RIVAL_DEFAULT_ID or RIVAL_VANILLA_ID → restore the original pic
+-- from the generated data backup so vanilla Blue shows correctly.
+local TRAINER_PIC_BACKUP = {}  -- original pic values saved before first mutation
+
+local function _getGameData()
+  local ok, Game = pcall(require, "src.core.Game")
+  return ok and Game and Game.data
+end
+
 local function _patchTrainerRecord(mod, oppClass, rivalId)
+  local data = _getGameData()
+  if not (data and data.trainers and data.trainers[oppClass]) then return end
+  local record = data.trainers[oppClass]
+
+  -- Save the original pic on first call so we can restore it for DEFAULT/BLUE.
+  if TRAINER_PIC_BACKUP[oppClass] == nil then
+    TRAINER_PIC_BACKUP[oppClass] = record.pic or false  -- false = was nil
+  end
+
   if rivalId == RIVAL_DEFAULT_ID or rivalId == RIVAL_VANILLA_ID then
-    mod.content.trainers:patch(oppClass, { pic = nil, paletteSource = nil })
+    -- Restore vanilla pic.
+    local orig = TRAINER_PIC_BACKUP[oppClass]
+    record.pic           = orig ~= false and orig or nil
+    record.paletteSource = nil
   else
-    mod.content.trainers:patch(oppClass, {
-      pic           = FRONT_PATH_BY_ID[rivalId] or nil,
-      paletteSource = "SPRITE_" .. rivalId,
-    })
+    -- Extract the rival encounter number from the oppClass name.
+    -- OPP_RIVAL1 -> 1, OPP_RIVAL2 -> 2, OPP_RIVAL3 -> 3
+    local rivalNum = tonumber(oppClass:match("OPP_RIVAL(%d)"))
+    local frontPath = FRONT_PATH_BY_ID[rivalId]
+
+    -- Use rival-specific front sprite if available, else fall back to frontPath.
+    if rivalNum and rivalNum > 0 then
+      local rivalSpecificPaths = RIVAL_FRONT_PATHS_BY_ID[rivalId]
+      if rivalSpecificPaths and rivalSpecificPaths[rivalNum] then
+        frontPath = rivalSpecificPaths[rivalNum]
+      end
+    end
+
+    record.pic           = frontPath or nil
+    record.paletteSource = "SPRITE_" .. rivalId
   end
 end
 
@@ -89,6 +124,10 @@ function RivalSwap.init(mod, characters, availableId)
   for _, char in ipairs(characters) do
     FRONT_PATH_BY_ID[char.id] = char.frontPath
     WALK_IMAGE_BY_ID[char.id] = char.walkImage
+    -- Store rival-specific front sprites if available (front-rival1.png, front-rival2.png, etc.)
+    if char.rivalFrontPaths then
+      RIVAL_FRONT_PATHS_BY_ID[char.id] = char.rivalFrontPaths
+    end
   end
 
   -- Option schema: DEFAULT is pinned first, then all available characters.
@@ -112,7 +151,10 @@ function RivalSwap.init(mod, characters, availableId)
     if not speech then return end
     local rivalId = RivalSwap._resolveSelectedRival(mod, availableId)
     if rivalId == RIVAL_DEFAULT_ID or rivalId == RIVAL_VANILLA_ID then return end
-    local frontPath = FRONT_PATH_BY_ID[rivalId]
+    -- Oak intro uses OPP_RIVAL1 (first encounter), so use rival-specific sprite [1] if available.
+    local rivalSpecificPaths = RIVAL_FRONT_PATHS_BY_ID[rivalId]
+    local frontPath = (rivalSpecificPaths and rivalSpecificPaths[1])
+                   or FRONT_PATH_BY_ID[rivalId]
     if not frontPath then return end
     local Assets = require("src.render.Assets")
     local resolved = Assets.resolve and Assets.resolve(frontPath) or frontPath

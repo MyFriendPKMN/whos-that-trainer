@@ -56,6 +56,20 @@ The subfolder name (lowercase) becomes the character's internal ID. For example,
 | `fish_back.png` | **16 × 8 px** | Fishing pose tile for facing **up**. If absent, RED's fishing tile is used. |
 | `fish_side.png` | **16 × 8 px** | Fishing pose tile for facing **left/right**. If absent, RED's fishing tile is used. |
 
+**Rival-specific encounter sprites** *(optional — only used when the character is selected as rival)*
+
+If you want the **rival character to have different portrait sprites for each encounter** (Pallet Town vs. Lavender Town vs. Final Battle), create these optional files:
+
+| File | Size | Description |
+|---|---|---|
+| `front-rival1.png` | **56 × 56 px** | Portrait for the **first rival encounter** (Pallet Town). If omitted, uses `front.png` as fallback. |
+| `front-rival2.png` | **56 × 56 px** | Portrait for the **second rival encounter** (Rival's House). If omitted, uses `front.png` as fallback. |
+| `front-rival3.png` | **56 × 56 px** | Portrait for the **third rival encounter** (Lavender Town). If omitted, uses `front.png` as fallback. |
+
+This allows rivals to have evolving or different appearances across multiple battles. If you don't provide these, the character will use `front.png` for all rival encounters.
+
+> ✨ **New in v1.4:** You can now create a character using **only a `config.json` file** — no sprite files required! The character will use vanilla RED sprites for overworld and battle, but can still have custom `label`, `starterSpecies` (Yellow only), and other config options. This is perfect for creating character variants or trainer data tweaks without custom artwork.
+
 **3. Create a `config.json`** *(optional)*
 (an example is on mod folder at `custom_characters` folder)
 ```json
@@ -135,6 +149,12 @@ or using a Pokémon palette:
 { "label": "Yellow Trainer", "palette": "PIKACHU", "trueColor": false }
 ```
 
+or equivalently (sprite ID format):
+
+```json
+{ "label": "Yellow Trainer", "palette": "SPRITE_PIKACHU", "trueColor": false }
+```
+
 If `config.json` is absent, the mod uses the folder name in uppercase as the `label` and all other fields at their defaults.
 
 **4. Restart the game**
@@ -150,13 +170,16 @@ The character appears automatically in the CHARACTER, RIVAL, and FOLLOWER lists 
 ```
 custom_characters/
 └── ash/
-    ├── walk.png           ← optional: 16 × 96 px, 6 frames of 16 × 16 stacked vertically
-    ├── front.png          ← optional: 56 × 56 px
-    ├── back.png           ← optional: 56 × 56 px
-    ├── bike.png           ← optional: 16 × 96 px, same layout as walk.png
-    ├── fish_front.png     ← optional: 16 × 8 px, fishing pose facing down
-    ├── fish_back.png      ← optional: 16 × 8 px, fishing pose facing up
-    ├── fish_side.png      ← optional: 16 × 8 px, fishing pose facing left/right
+    ├── walk.png           ← optional: 16 × 96 px, 6 frames of 16 × 16 stacked vertically (falls back to vanilla sprite)
+    ├── bike.png           ← optional: 16 × 96 px, same layout as walk.png (falls back to vanilla sprite)
+    ├── back.png           ← optional: 56 × 56 px (falls back to vanilla sprite)
+    ├── front.png          ← optional: 56 × 56 px (falls back to vanilla sprite)
+    ├── front-rival1.png   ← optional: 56 × 56 px (first rival encounter, falls back to front.png) [	Oak's Lab, Cerulean, Route 22 pre-Ligue]
+    ├── front-rival2.png   ← optional: 56 × 56 px (second rival encounter, falls back to front.png) [SS Anne, Lavender Town, Silph Co., Route 22]
+    ├── front-rival3.png   ← optional: 56 × 56 px (third rival encounter, falls back to front.png) [Champion League]
+    ├── fish_front.png     ← optional: 16 × 8 px, fishing pose facing down (falls back to vanilla sprite)
+    ├── fish_back.png      ← optional: 16 × 8 px, fishing pose facing up (falls back to vanilla sprite)
+    ├── fish_side.png      ← optional: 16 × 8 px, fishing pose facing left/right (falls back to vanilla sprite)
     └── config.json        ← optional; label, starterSpecies (Yellow only), mirrorBack, trueColor, battleScale
 ```
 
@@ -193,6 +216,7 @@ love . --developer
 ## ⚠️ Known Limitations
 
 - **Palette accuracy:** Some built-in characters may use fallback palettes if their original sprite data is unavailable in your ROM cache.
+- Some sprites can show inconsistences if used with voxels mod(if I found those im reporting on voxel`s repo)
 
 ## 🔄 Updating from Previous Versions
 
@@ -215,8 +239,8 @@ If you're updating from an older version (< 0.0.3), you may need to regenerate b
 
 ## 📝 Credits
 
-All built-in character sprites are derived from the original Red/Blue/Yellow ROMs via runtime transformation. No copyrighted artwork is distributed with this mod.
-
-The custom character Kawfy was made by the excelent artist that drew it with love. Follow at [bluesky](https://bsky.app/profile/kawfy.bsky.social) and [instagram](https://www.instagram.com/a.kawfy).
+- All built-in character sprites are derived from the original Red/Blue/Yellow ROMs via runtime transformation. No copyrighted artwork is distributed with this mod.
+- The custom character Kawfy was made by the excelent artist that drew it with love. Follow at [bluesky](https://bsky.app/profile/kawfy.bsky.social) and [instagram](https://www.instagram.com/a.kawfy).
+- The custom character Miraisen was made by the excelent artist that drew it with love. Follow at https://www.mirasein.me/.
 
 PS: tested on Yellow and recomp version 0.1.6
