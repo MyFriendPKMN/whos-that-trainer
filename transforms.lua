@@ -48,12 +48,8 @@ local DERIVED_BACKS = {
   makeDerivedBack("AGATHA", "battle/trainers/agatha.png", { mirror = true }),
   makeDerivedBack("LANCE", "battle/trainers/lance.png", { mirror = true }),
   makeDerivedBack("BLUE", "battle/trainers/rival3.png", { mirror = true }),
-  -- jessie_james.png is the only battle sprite available for the duo.
-  -- useOriginalSize=false lets fitScale normalize the wide canvas first,
-  -- then scale=0.5 halves it. integerScale=false avoids rounding up to
-  -- a large integer step that would make the sprite oversized.
-  makeDerivedBack("JESSIE", "battle/trainers/jessie_james.png", { mirror = true, useOriginalSize = false, scale = 0.95, integerScale = false }),
-  makeDerivedBack("JAMES",  "battle/trainers/jessie_james.png", { mirror = true, useOriginalSize = false, scale = 0.95, integerScale = false }),
+  makeDerivedBack("JESSIE", "battle/trainers/jessie_james.png", { mirror = true }),
+  makeDerivedBack("JAMES",  "battle/trainers/jessie_james.png", { mirror = true }),
 }
 
 local function computeAnchorStart(canvasSize, spriteSize, anchor, margin)
